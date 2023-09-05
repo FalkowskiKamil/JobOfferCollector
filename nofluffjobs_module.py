@@ -25,7 +25,6 @@ def nofluffjobs_function():
         # Decrement deadline
         nofluffjobs = Nofluffjobs()
         nofluffjobs.decrement_deadline(session)
-        print("decrement deadline by 1 day")
 
     # Scrapping data
     driver = webdriver.Chrome()
@@ -46,7 +45,7 @@ def nofluffjobs_function():
 
     # Iterating over sites
     for site in range(number_of_site - 1):
-        driver = next_site(driver)
+        driver = next_page(driver)
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
         container = soup.find("div", {"class": "list-container ng-star-inserted"})
@@ -118,15 +117,15 @@ def accept_cookies(driver):
     sleep(2)
 
 
-def next_site(driver):
-    next_site_button = driver.find_element(
+def next_page(driver):
+    next_page_button = driver.find_element(
         By.XPATH,
         "(/html/body/nfj-root/nfj-layout/nfj-main-content/div/nfj-postings-search/div/common-main-loader/nfj-search-results/div/nfj-pagination/ul/li/a)[last()]",
     )
     sleep(1)
-    driver.execute_script("arguments[0].scrollIntoView();", next_site_button)
+    driver.execute_script("arguments[0].scrollIntoView();", next_page_button)
     driver.execute_script(f"window.scrollBy(0, -100);")
     sleep(1)
-    next_site_button.click()
+    next_page_button.click()
     sleep(2)
     return driver
