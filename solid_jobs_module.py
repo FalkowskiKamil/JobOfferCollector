@@ -27,14 +27,11 @@ def solid_jobs_function():
 
     # Checking table exists
 
-    if not inspector.has_table(NewsOffert.__tablename__):
-        Base.metadata.create_all(engine)
     if not inspector.has_table(SolidJob.__tablename__):
         Base.metadata.create_all(engine)
     else:
         solid_jobs = SolidJob()
         solid_jobs.decrement_deadline(session)
-        print("decrement deadline by 1 day")
 
     for result in results:
         link = result.find("a", {"class": "color-dark-grey color-blue-onhover"}).get(
@@ -45,7 +42,6 @@ def solid_jobs_function():
             session.query(SolidJob).filter(SolidJob.link == link).count()
         )
         if offer_exist_in_db > 0:
-            print("Oferta już istnieje w bazie danych")
             continue
         else:
             title = (
@@ -65,6 +61,12 @@ def solid_jobs_function():
                 .get_text()
                 .lstrip()
             )
+            wages = result.find(
+                "a",
+                {
+                    "class": "mat-tooltip-trigger badge badge-advanced mr-1 d-inline d-md-none no-wrap ng-star-inserted"
+                },
+            ).get_text()
             remote = result.find(
                 "a",
                 {
@@ -80,18 +82,19 @@ def solid_jobs_function():
                 offer_title=title,
                 company_name=company,
                 location=place,
+                wages=wages,
                 link=link,
                 remote=remote,
             )
-            session.add(new_solid_job)
             new_offer = NewsOffert(
                 offer_title=title,
                 company_name=company,
                 location=place,
+                wages=wages,
                 link=link,
                 remote=remote,
                 source="Solid Jobs",
             )
-            session.add(new_offer)
-            session.commit()
+            session.add_all([new_solid_job, new_offer])
+    session.commit()
     session.close()

@@ -15,6 +15,7 @@ class BaseSite(Base):
     offer_title = Column(String)
     company_name = Column(String)
     location = Column(String)
+    wages = Column(String, default="NaN")
     link = Column(String, unique=True)
     remote = Column(Boolean, default=False)
     applicated = Column(Boolean, default=False)
@@ -29,6 +30,7 @@ class BaseSite(Base):
         # Wykonaj operację aktualizacji na bazie danych za pomocą sesji.
         session.execute(stmt)
         session.commit()
+        print("decrement deadline by 1 day")
 
 
 class NewsOffert(BaseSite):

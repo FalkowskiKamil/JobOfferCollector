@@ -24,14 +24,11 @@ def bulldog_function():
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     # Checking table exists
-    if not inspector.has_table(NewsOffert.__tablename__):
-        Base.metadata.create_all(engine)
     if not inspector.has_table(Bulldog.__tablename__):
         Base.metadata.create_all(engine)
     else:
         bull_dog = Bulldog()
         bull_dog.decrement_deadline(session)
-        print("decrement deadline by 1 day")
 
     results = soup.find_all(
         "div",
@@ -60,6 +57,9 @@ def bulldog_function():
                     "class": "group flex rounded-md items-center w-full px-2 my-1 font-normal"
                 },
             )
+            wages = result.find(
+                "div", {"class": "lg:font-extrabold md:text-xl text-dm"}
+            ).get_text()
             remote = False
             place_list = str()
             for place in places_group:
@@ -71,18 +71,19 @@ def bulldog_function():
                 offer_title=title,
                 company_name=company,
                 location=place_list,
+                wages=wages,
                 link=link,
                 remote=remote,
             )
-            session.add(new_bulldog_job)
             new_offert = NewsOffert(
                 offer_title=title,
                 company_name=company,
                 location=place_list,
+                wages=wages,
                 link=link,
                 remote=remote,
                 source="Bulldog",
             )
-            session.add(new_offert)
+            session.add_all([new_bulldog_job, new_offert])
             session.commit()
     session.close()
