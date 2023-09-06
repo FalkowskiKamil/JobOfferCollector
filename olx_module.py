@@ -27,7 +27,7 @@ def olx_function():
     else:
         # Decrement deadline
         olx = Olx()
-        # olx.decrement_deadline(session)
+        olx.decrement_deadline(session)
 
     driver = webdriver.Chrome()
     driver.get(

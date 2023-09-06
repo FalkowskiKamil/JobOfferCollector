@@ -3,6 +3,7 @@ from bulldog_module import bulldog_function
 from nofluffjobs_module import nofluffjobs_function
 from olx_module import olx_function
 from pracuj_module import pracuj_function
+from just_join_module import just_join_function
 from base_module import NewsOffert
 from time import sleep
 from bs4 import BeautifulSoup
@@ -19,7 +20,7 @@ from base_module import BaseSite, NewsOffert, Base, engine
 #nofluffjobs_function()
 #olx_function()
 #pracuj_function()
-
+just_join_function()
 ### Printing result
 """
 inspector = inspect(engine)
