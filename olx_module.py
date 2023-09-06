@@ -1,3 +1,4 @@
+import re
 import requests
 from time import sleep
 from datetime import date
@@ -37,15 +38,20 @@ def olx_function():
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     total_results = soup.find_all("a", {"class": "css-rc5s2u"})
-    number_of_pages = soup.find("ul", {"class": "pagination-list"})
-    number_of_pages = list(number_of_pages.find_all("li"))[-1].get_text()
-    # Collecting data from next pages
-    for page in range(int(number_of_pages.strip()) - 1):
-        driver = next_page(driver)
-        html = driver.page_source
-        soup = BeautifulSoup(html, "html.parser")
-        results = soup.find_all("a", {"class": "css-rc5s2u"})
-        total_results += results
+    number_of_offert = soup.find("span", {"data-testid":"total-count"}).get_text()
+    pattern = r'\d+'
+    number_of_offert = re.findall(pattern, number_of_offert)
+    if int(number_of_offert[0]) > 40:
+        number_of_pages = soup.find("ul", {"class": "pagination-list"})
+        number_of_pages = list(number_of_pages.find_all("li"))[-1].get_text()
+        # Collecting data from next pages
+        print(number_of_pages)
+        for page in range(int(number_of_pages.strip()) - 1):
+            driver = next_page(driver)
+            html = driver.page_source
+            soup = BeautifulSoup(html, "html.parser")
+            results = soup.find_all("a", {"class": "css-rc5s2u"})
+            total_results += results
     driver.close()
 
     root_site = "https://www.olx.pl"
@@ -56,7 +62,7 @@ def olx_function():
             if offer_exist_in_db > 0:
                 continue
             else:
-                time = result.find("p",{"class":"css-l3c9zc"}).get_text()
+                time = result.find("p", {"class":"css-l3c9zc"}).get_text()
                 if "Dzisiaj" in time:
                     time = date.today()
                     
@@ -82,6 +88,7 @@ def olx_function():
                 except:
                     remote = False
                 new_olx = Olx(
+                    time=time,
                     offer_title=title,
                     company_name=company,
                     location=location,
@@ -90,6 +97,7 @@ def olx_function():
                     remote=remote,
                 )
                 new_offer = NewsOffert(
+                    time=time,
                     offer_title=title,
                     company_name=company,
                     location=location,

@@ -11,7 +11,7 @@ engine = create_engine(f"sqlite:///{db_path}")
 class BaseSite(Base):
     __abstract__ = True
     id = Column(Integer, primary_key=True)
-    time = Column(Date, default=date.today())
+    time = Column(String, default=date.today())
     offer_title = Column(String)
     company_name = Column(String)
     location = Column(String)
