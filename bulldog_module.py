@@ -13,39 +13,50 @@ class Bulldog(BaseSite):
 
 
 def bulldog_function():
+    # Connect to Database
     inspector = inspect(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
 
+    # Checking table exists
+    if not inspector.has_table(Bulldog.__tablename__):
+        Base.metadata.create_all(engine)
+    else:
+        # Decrement deadline
+        bull_dog = Bulldog()
+        bull_dog.decrement_deadline(session)
+
+    # Scrapping data
     driver = webdriver.Chrome()
     driver.get(
         "https://bulldogjob.pl/companies/jobs/s/skills,Python/experienceLevel,junior,intern"
     )
     sleep(1)
     html = driver.page_source
+    driver.close()
     soup = BeautifulSoup(html, "html.parser")
-    
-    # Checking table exists
-    if not inspector.has_table(Bulldog.__tablename__):
-        Base.metadata.create_all(engine)
-    else:
-        bull_dog = Bulldog()
-        bull_dog.decrement_deadline(session)
-
     results = soup.find_all(
         "a",
         {
             "class": "p-3 md:p-5 xs:-mx-6 md:mx-0 flex gap-8 relative bg-white mb-4 md:rounded-lg shadow-jobitem cursor-pointer"
         },
     )
+
+    # Iterating over offert
     for result in results:
         link = result.get("href")
+
+        # Checking if data already exist in db
         offer_exist_in_db = session.query(Bulldog).filter(Bulldog.link == link).count()
         if offer_exist_in_db > 0:
             continue
         else:
+            # Scrapping details
             title = result.find(
-                "h3", {"class": "md:mb-5 lg:mb-0 text-18 font-extrabold leading-8 mr-8 md:mr-0"}
+                "h3",
+                {
+                    "class": "md:mb-5 lg:mb-0 text-18 font-extrabold leading-8 mr-8 md:mr-0"
+                },
             ).get_text()
             company = result.find(
                 "div",
@@ -64,11 +75,13 @@ def bulldog_function():
             ).get_text()
             remote = False
             place_list = str()
+            # Checking remote
             for place in places_group:
                 if place.get_text() == "Remote":
                     remote = True
                 else:
                     place_list += place.get_text()
+            # Saving detail
             new_bulldog_job = Bulldog(
                 offer_title=title,
                 company_name=company,

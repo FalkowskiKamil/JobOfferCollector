@@ -45,8 +45,8 @@ def nofluffjobs_function():
         results_next_page = container.find_all("a", {"class": "posting-list-item"})
         total_results += results_next_page
     root_site = "https://nofluffjobs.com"
-    
-    # Transform given data
+
+    # Iterating over offert
     for result in total_results:
         link = result.get("href")
         link = root_site + link
@@ -57,6 +57,7 @@ def nofluffjobs_function():
         if offer_exist_in_db > 0:
             continue
         else:
+            # Scrapping details
             title = result.find("h3").get_text()
             company = result.find("span").get_text().strip()
             place = result.find(
@@ -74,6 +75,8 @@ def nofluffjobs_function():
             remote = False
             if place == " Zdalnie ":
                 remote = True
+
+            # Saving details
             new_nofluffjobs = Nofluffjobs(
                 offer_title=title,
                 company_name=company,

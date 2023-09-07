@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from sqlalchemy import Column, Integer, String, Boolean, Date, create_engine, update
 from sqlalchemy.orm import declarative_base, Session
 
@@ -6,7 +6,6 @@ from sqlalchemy.orm import declarative_base, Session
 Base = declarative_base()
 db_path = "jobs_creator.db"  # Ścieżka do bazy danych
 engine = create_engine(f"sqlite:///{db_path}")
-
 
 
 class BaseSite(Base):
@@ -37,3 +36,24 @@ class BaseSite(Base):
 class NewsOffert(BaseSite):
     __tablename__ = "News_Offer"
     source = Column(String)
+
+def date_translate(time):
+    month_translations = {
+            'stycznia': 'January',
+            'lutego': 'February',
+            'marca': 'March',
+            'kwietnia': 'April',
+            'maja': 'May',
+            'czerwca': 'June',
+            'lipca': 'July',
+            'sierpnia': 'August',
+            'września': 'September',
+            'października': 'October',
+            'listopada': 'November',
+            'grudnia': 'December'
+        }
+    for pl_month, en_month in month_translations.items():
+        time = time.replace(pl_month, en_month)
+        
+    time = datetime.strptime(time, "%d %B %Y").date()
+    return time
