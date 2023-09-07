@@ -44,11 +44,14 @@ def linkedin_function():
     if number_of_offert > 160:
         number_of_pages = int((number_of_offert - 160) / 25)+1
         for page in range(number_of_pages):
-            driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
-            element = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/section[2]/button")
-            sleep(1)
-            element.click()
-            sleep(2)
+            try:
+                driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
+                element = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/section[2]/button")
+                sleep(2)
+                element.click()
+                sleep(2)
+            except:
+                continue
         
         driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
         sleep(2)
@@ -56,7 +59,6 @@ def linkedin_function():
     driver.close()
     soup = BeautifulSoup(html, "html.parser")
     total_offert = soup.find_all("div", {"class":"base-card relative w-full hover:no-underline focus:no-underline base-card--link base-search-card base-search-card--link job-search-card"})
-    print(len(total_offert))
     for result in total_offert:
         link = result.find("a", {"class":"base-card__full-link"}).get("href")
         link = link.strip()

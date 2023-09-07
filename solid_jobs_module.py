@@ -12,6 +12,10 @@ class SolidJob(BaseSite):
 
 
 def solid_jobs_function():
+    inspector = inspect(engine)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    
     driver = webdriver.Chrome()
     driver.get("https://solid.jobs/offers/it;experiences=Junior;subcategories=Python")
     sleep(1)
@@ -21,9 +25,6 @@ def solid_jobs_function():
         "div", {"class": "card py-2 pl-3 pr-2 mb-2 mr-2 offer left-junior"}
     )
     root_link = "https://solid.jobs"
-    inspector = inspect(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
 
     # Checking table exists
 

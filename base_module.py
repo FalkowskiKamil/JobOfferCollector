@@ -8,10 +8,11 @@ db_path = "jobs_creator.db"  # Ścieżka do bazy danych
 engine = create_engine(f"sqlite:///{db_path}")
 
 
+
 class BaseSite(Base):
     __abstract__ = True
     id = Column(Integer, primary_key=True)
-    time = Column(String, default=date.today())
+    time = Column(Date, default=date.today())
     offer_title = Column(String)
     company_name = Column(String)
     location = Column(String)

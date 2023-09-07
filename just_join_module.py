@@ -66,7 +66,6 @@ def just_join_function():
                 remote = False
             location = location.split(",")[0]
             wages = offert.find("div",{"class":"jss263"}).get_text()
-        
         new_just_join = Just_join(
                 time=time,
                 offer_title=title,
@@ -87,5 +86,5 @@ def just_join_function():
                 source="Just Join",
             )
         session.add_all([new_just_join, new_offer])
-        session.commit()
-        session.close()
+    session.commit()
+    session.close()

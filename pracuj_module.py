@@ -1,7 +1,7 @@
 import re
 import requests
 from time import sleep
-from datetime import date
+from datetime import date, datetime
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -31,7 +31,7 @@ def pracuj_function():
 
     driver = webdriver.Chrome()
     driver.get(
-        "https://www.pracuj.pl/praca/python;kw/warszawa;wp?rd=30&cc=5016001%2C5016002%2C5016003%2C5016004%2C5001%2C5002%2C5003%2C5004%2C5005%2C5006%2C5037%2C5036%2C5007%2C5008%2C5009%2C5010%2C5011%2C5015%2C5014%2C5013%2C5012%2C5035%2C5033%2C5032%2C5031%2C5028%2C5027%2C5025%2C5026%2C5024%2C5023%2C5022%2C5021%2C5020%2C5019%2C5018%2C5017%2C5034&et=1%2C17"
+        "https://www.pracuj.pl/praca/python;kw/warszawa;wp?rd=30&cc=5016001%2C5016002%2C5016003%2C5016004%2C5001%2C5002%2C5003%2C5004%2C5005%2C5006%2C5037%2C5036%2C5007%2C5008%2C5009%2C5010%2C5011%2C5015%2C5014%2C5013%2C5012%2C5035%2C5033%2C5032%2C5031%2C5028%2C5027%2C5025%2C5026%2C5024%2C5023%2C5022%2C5021%2C5020%2C5019%2C5018%2C5017%2C5034&et=1%2C17&pn=1"
     )
     sleep(2)
     accept_cookies(driver)
@@ -46,8 +46,11 @@ def pracuj_function():
     total_result = section_offers.find_all(
         "div", {"class": "listing_b1evff58 listing_po9665q"}
     )
+    index = 1
     for page in range(int(page_number[0]) - 1):
-        driver = next_page(driver)
+        index += 1
+        driver.get(f"https://www.pracuj.pl/praca/python;kw/warszawa;wp?rd=30&cc=5016001%2C5016002%2C5016003%2C5016004%2C5001%2C5002%2C5003%2C5004%2C5005%2C5006%2C5037%2C5036%2C5007%2C5008%2C5009%2C5010%2C5011%2C5015%2C5014%2C5013%2C5012%2C5035%2C5033%2C5032%2C5031%2C5028%2C5027%2C5025%2C5026%2C5024%2C5023%2C5022%2C5021%2C5020%2C5019%2C5018%2C5017%2C5034&et=1%2C17&pn={index}")
+        sleep(2)
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
         section_offers = soup.find("div", {"data-test": "section-offers"})
@@ -79,6 +82,25 @@ def pracuj_function():
                 ).get_text()
 
                 time = time.removeprefix("Opublikowana: ")
+                month_translations = {
+                            'stycznia': 'January',
+                            'lutego': 'February',
+                            'marca': 'March',
+                            'kwietnia': 'April',
+                            'maja': 'May',
+                            'czerwca': 'June',
+                            'lipca': 'July',
+                            'sierpnia': 'August',
+                            'września': 'September',
+                            'października': 'October',
+                            'listopada': 'November',
+                            'grudnia': 'December'
+                        }
+                        # Zamiana miesięcy na angielskie odpowiedniki
+                for pl_month, en_month in month_translations.items():
+                    time = time.replace(pl_month, en_month)
+                # Konwersja ciągu znaków na obiekt daty
+                time = datetime.strptime(time, "%d %B %Y").date()
                 title = offert.find(
                     "a", {"class": "listing_o1dyw02w listing_n194fgoq"}
                 ).get_text()
@@ -137,14 +159,3 @@ def accept_cookies(driver):
     sleep(1)
     cookie_button.click()
     sleep(2)
-
-
-def next_page(driver):
-    next_page_button = driver.find_element(
-        By.XPATH,
-        "/html/body/div[1]/div/div[3]/div[2]/div[1]/div[2]/div[2]/div/div/button[2]",
-    )
-    sleep(1)
-    next_page_button.click()
-    sleep(3)
-    return driver

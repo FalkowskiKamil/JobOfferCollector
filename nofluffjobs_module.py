@@ -1,7 +1,5 @@
-from time import sleep
+import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 from sqlalchemy import inspect
 from sqlalchemy.orm import sessionmaker
 
@@ -27,14 +25,8 @@ def nofluffjobs_function():
         nofluffjobs.decrement_deadline(session)
 
     # Scrapping data
-    driver = webdriver.Chrome()
-    driver.get(
-        "https://nofluffjobs.com/pl/praca-zdalna/Python?page=1&criteria=city%3Dwarszawa%20%20seniority%3Dtrainee,junior"
-    )
-    sleep(2)
-    accept_cookies(driver)
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
+    html = requests.get("https://nofluffjobs.com/pl/praca-zdalna/Python?page=1&criteria=city%3Dwarszawa%20%20seniority%3Dtrainee,junior")
+    soup = BeautifulSoup(html.content, "html.parser")
     container = soup.find("div", {"class": "list-container ng-star-inserted"})
     total_results = container.find_all("a", {"class": "posting-list-item"})
 
@@ -44,15 +36,16 @@ def nofluffjobs_function():
     number_of_site = int(list(number_of_site)[-2].get_text().strip())
 
     # Iterating over sites
+    index = 1
     for site in range(number_of_site - 1):
-        driver = next_page(driver)
-        html = driver.page_source
-        soup = BeautifulSoup(html, "html.parser")
+        index +=1
+        html = requests.get(f"https://nofluffjobs.com/pl/praca-zdalna/Python?page={index}&criteria=city%3Dwarszawa%20%20seniority%3Dtrainee,junior")
+        soup = BeautifulSoup(html.content, "html.parser")
         container = soup.find("div", {"class": "list-container ng-star-inserted"})
         results_next_page = container.find_all("a", {"class": "posting-list-item"})
         total_results += results_next_page
     root_site = "https://nofluffjobs.com"
-
+    
     # Transform given data
     for result in total_results:
         link = result.get("href")
@@ -64,14 +57,8 @@ def nofluffjobs_function():
         if offer_exist_in_db > 0:
             continue
         else:
-            title = result.find(
-                "h3",
-                {"class": "posting-title__position text-truncate ng-star-inserted"},
-            ).get_text()
-            company = result.find(
-                "span",
-                {"class": "d-block tw-text-xs text-truncate font-gray-757575 company"},
-            ).get_text()
+            title = result.find("h3").get_text()
+            company = result.find("span").get_text().strip()
             place = result.find(
                 "span",
                 {
@@ -108,24 +95,3 @@ def nofluffjobs_function():
             session.add_all([new_nofluffjobs, new_offer])
     session.commit()
     session.close()
-
-
-def accept_cookies(driver):
-    cookie_button = driver.find_element(By.ID, "onetrust-accept-btn-handler")
-    sleep(2)
-    cookie_button.click()
-    sleep(2)
-
-
-def next_page(driver):
-    next_page_button = driver.find_element(
-        By.XPATH,
-        "(/html/body/nfj-root/nfj-layout/nfj-main-content/div/nfj-postings-search/div/common-main-loader/nfj-search-results/div/nfj-pagination/ul/li/a)[last()]",
-    )
-    sleep(1)
-    driver.execute_script("arguments[0].scrollIntoView();", next_page_button)
-    driver.execute_script(f"window.scrollBy(0, -100);")
-    sleep(1)
-    next_page_button.click()
-    sleep(2)
-    return driver

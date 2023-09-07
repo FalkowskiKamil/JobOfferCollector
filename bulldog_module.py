@@ -1,3 +1,4 @@
+import requests
 from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -23,6 +24,7 @@ def bulldog_function():
     sleep(1)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
+    
     # Checking table exists
     if not inspector.has_table(Bulldog.__tablename__):
         Base.metadata.create_all(engine)
@@ -31,19 +33,19 @@ def bulldog_function():
         bull_dog.decrement_deadline(session)
 
     results = soup.find_all(
-        "div",
+        "a",
         {
             "class": "p-3 md:p-5 xs:-mx-6 md:mx-0 flex gap-8 relative bg-white mb-4 md:rounded-lg shadow-jobitem cursor-pointer"
         },
     )
     for result in results:
-        link = result.find_parent("a").get("href")
+        link = result.get("href")
         offer_exist_in_db = session.query(Bulldog).filter(Bulldog.link == link).count()
         if offer_exist_in_db > 0:
             continue
         else:
             title = result.find(
-                "h3", {"class": "text-18 font-extrabold leading-8 mr-8 md:mr-0"}
+                "h3", {"class": "md:mb-5 lg:mb-0 text-18 font-extrabold leading-8 mr-8 md:mr-0"}
             ).get_text()
             company = result.find(
                 "div",
@@ -85,5 +87,5 @@ def bulldog_function():
                 source="Bulldog",
             )
             session.add_all([new_bulldog_job, new_offert])
-            session.commit()
+    session.commit()
     session.close()
