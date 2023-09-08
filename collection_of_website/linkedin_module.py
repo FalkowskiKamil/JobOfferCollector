@@ -4,29 +4,17 @@ from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from sqlalchemy import inspect
-from sqlalchemy.orm import sessionmaker
 
-from base_module import BaseSite, NewsOffert, Base, engine
-
+from base_module import BaseSite, NewsOffert
 
 class Linkedin(BaseSite):
     __tablename__ = "Linkedin"
 
 
-def linkedin_function():
-    # Connect to Database
-    inspector = inspect(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Checking if table exists
-    if not inspector.has_table(Linkedin.__tablename__):
-        Base.metadata.create_all(engine)
-    else:
-        # Decrement deadline
-        linkedin = Linkedin()
-        linkedin.decrement_deadline(session)
+def linkedin_function(session):
+    # Decrement deadline
+    linkedin = Linkedin()
+    linkedin.decrement_deadline(session)
     
     # Scrapping init
     driver = webdriver.Chrome()
@@ -100,5 +88,3 @@ def linkedin_function():
             source="Linkedin",
         )
         session.add_all([new_linked, new_offer])
-    session.commit()
-    session.close()

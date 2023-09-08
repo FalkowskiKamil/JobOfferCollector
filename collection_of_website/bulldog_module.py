@@ -1,30 +1,18 @@
-import requests
 from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from sqlalchemy import inspect
-from sqlalchemy.orm import sessionmaker
 
-from base_module import BaseSite, NewsOffert, Base, engine
+from base_module import BaseSite, NewsOffert
 
 
 class Bulldog(BaseSite):
     __tablename__ = "Bulldog"
 
 
-def bulldog_function():
-    # Connect to Database
-    inspector = inspect(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Checking table exists
-    if not inspector.has_table(Bulldog.__tablename__):
-        Base.metadata.create_all(engine)
-    else:
-        # Decrement deadline
-        bull_dog = Bulldog()
-        bull_dog.decrement_deadline(session)
+def bulldog_function(session):
+    # Decrement deadline
+    bull_dog = Bulldog()
+    bull_dog.decrement_deadline(session)
 
     # Scrapping data
     driver = webdriver.Chrome()
@@ -74,18 +62,18 @@ def bulldog_function():
                 "div", {"class": "lg:font-extrabold md:text-xl text-dm"}
             ).get_text()
             remote = False
-            place_list = str()
+            location = str()
             # Checking remote
             for place in places_group:
                 if place.get_text() == "Remote":
                     remote = True
                 else:
-                    place_list += place.get_text()
+                    location += place.get_text()
             # Saving detail
             new_bulldog_job = Bulldog(
                 offer_title=title,
                 company_name=company,
-                location=place_list,
+                location=location,
                 wages=wages,
                 link=link,
                 remote=remote,
@@ -93,12 +81,10 @@ def bulldog_function():
             new_offert = NewsOffert(
                 offer_title=title,
                 company_name=company,
-                location=place_list,
+                location=location,
                 wages=wages,
                 link=link,
                 remote=remote,
                 source="Bulldog",
             )
             session.add_all([new_bulldog_job, new_offert])
-    session.commit()
-    session.close()

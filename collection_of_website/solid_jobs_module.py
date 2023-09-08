@@ -1,29 +1,17 @@
 from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from sqlalchemy import inspect
-from sqlalchemy.orm import sessionmaker
 
-from base_module import BaseSite, NewsOffert, Base, engine
-
+from base_module import BaseSite, NewsOffert
 
 class SolidJob(BaseSite):
     __tablename__ = "Solid_Jobs"
 
 
-def solid_jobs_function():
-    # Connect to Database
-    inspector = inspect(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    
-    # Checking if table exists
-    if not inspector.has_table(SolidJob.__tablename__):
-        Base.metadata.create_all(engine)
-    else:
-        # Decrement deadline
-        solid_jobs = SolidJob()
-        solid_jobs.decrement_deadline(session)
+def solid_jobs_function(session):
+    # Decrement deadline
+    solid_jobs = SolidJob()
+    solid_jobs.decrement_deadline(session)
     
     # Init scrapping
     driver = webdriver.Chrome()
@@ -103,5 +91,3 @@ def solid_jobs_function():
                 source="Solid Jobs",
             )
             session.add_all([new_solid_job, new_offer])
-    session.commit()
-    session.close()

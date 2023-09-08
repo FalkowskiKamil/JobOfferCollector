@@ -1,33 +1,22 @@
 import re
 import requests
 from time import sleep
-from datetime import date, datetime
+from datetime import date
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from sqlalchemy import inspect
-from sqlalchemy.orm import sessionmaker
 
-from base_module import BaseSite, NewsOffert, Base, engine, date_translate
+from base_module import BaseSite, NewsOffert, date_translate
 
 
 class Olx(BaseSite):
     __tablename__ = "OLX"
 
 
-def olx_function():
-    # Connect to Database
-    inspector = inspect(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Checking if table exists
-    if not inspector.has_table(Olx.__tablename__):
-        Base.metadata.create_all(engine)
-    else:
-        # Decrement deadline
-        olx = Olx()
-        olx.decrement_deadline(session)
+def olx_function(session):
+    # Decrement deadline
+    olx = Olx()
+    olx.decrement_deadline(session)
 
     # Scrapping init
     driver = webdriver.Chrome()
@@ -55,6 +44,8 @@ def olx_function():
             html = driver.page_source
             soup = BeautifulSoup(html, "html.parser")
             results += soup.find_all("a", {"class": "css-rc5s2u"})
+            print('got it')
+        print('Problem tutaj?')
     driver.close()
 
     root_site = "https://www.olx.pl"
@@ -96,7 +87,7 @@ def olx_function():
                     location = result.find("span", {"class":"css-d5w927"}).get_text()
                     wages_tag = result.find("p", {"class":"css-1hp12oq"})
                     if wages_tag == None:
-                        wages_tag = "NaN"
+                        wages = "NaN"
                     else:
                         wages = wages_tag.get_text()
                     remote = False
@@ -129,8 +120,6 @@ def olx_function():
                         source = "Olx"
                     )
                     session.add_all([new_olx, new_offer]) 
-    session.commit()
-    session.close()
             
 
 

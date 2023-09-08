@@ -1,28 +1,17 @@
 import requests
 from bs4 import BeautifulSoup
-from sqlalchemy import inspect
-from sqlalchemy.orm import sessionmaker
 
-from base_module import BaseSite, NewsOffert, Base, engine
+from base_module import BaseSite, NewsOffert
 
 
 class Nofluffjobs(BaseSite):
     __tablename__ = "NoFluffJobs"
 
 
-def nofluffjobs_function():
-    # Connect to Database
-    inspector = inspect(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Checking if table exists
-    if not inspector.has_table(Nofluffjobs.__tablename__):
-        Base.metadata.create_all(engine)
-    else:
-        # Decrement deadline
-        nofluffjobs = Nofluffjobs()
-        nofluffjobs.decrement_deadline(session)
+def nofluffjobs_function(session):
+    # Decrement deadline
+    nofluffjobs = Nofluffjobs()
+    nofluffjobs.decrement_deadline(session)
 
     # Scrapping data
     html = requests.get("https://nofluffjobs.com/pl/praca-zdalna/Python?page=1&criteria=city%3Dwarszawa%20%20seniority%3Dtrainee,junior")
@@ -96,5 +85,3 @@ def nofluffjobs_function():
                 source="NoFluffJobs",
             )
             session.add_all([new_nofluffjobs, new_offer])
-    session.commit()
-    session.close()

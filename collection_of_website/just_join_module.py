@@ -3,29 +3,17 @@ from time import sleep
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from sqlalchemy import inspect
-from sqlalchemy.orm import sessionmaker
 
-from base_module import BaseSite, NewsOffert, Base, engine
-
+from base_module import BaseSite, NewsOffert
 
 class Just_join(BaseSite):
     __tablename__ = "Just_join"
 
 
-def just_join_function():
-    # Connect to Database
-    inspector = inspect(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Checking if table exists
-    if not inspector.has_table(Just_join.__tablename__):
-        Base.metadata.create_all(engine)
-    else:
-        # Decrement deadline
-        just_join = Just_join()
-        just_join.decrement_deadline(session)
+def just_join_function(session):
+    # Decrement deadline
+    just_join = Just_join()
+    just_join.decrement_deadline(session)
     
     # Scrapping data
     driver = webdriver.Chrome()
@@ -89,5 +77,3 @@ def just_join_function():
                     source="Just Join",
                 )
             session.add_all([new_just_join, new_offer])
-    session.commit()
-    session.close()
