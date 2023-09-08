@@ -40,28 +40,27 @@ def olx_function():
     soup = BeautifulSoup(html, "html.parser")
     
     # Checking count of offert
-    total_results = soup.find_all("a", {"class": "css-rc5s2u"})
+    results = soup.find_all("a", {"class": "css-rc5s2u"})
     number_of_offert = soup.find("span", {"data-testid":"total-count"}).get_text()
     pattern = r'\d+'
     number_of_offert = re.findall(pattern, number_of_offert)
 
     # Calculating next-page count offert
     if int(number_of_offert[0]) > 40:
-        number_of_pages = soup.find("ul", {"class": "pagination-list"})
-        number_of_pages = list(number_of_pages.find_all("li"))[-1].get_text()
+        number_of_pages_ul = soup.find("ul", {"class": "pagination-list"})
+        number_of_pages = list(number_of_pages_ul.find_all("li"))[-1].get_text()
         # Collecting data from next pages
         for page in range(int(number_of_pages.strip()) - 1):
             driver.get(f"https://www.olx.pl/praca/q-Python/?page={page+2}")
             html = driver.page_source
             soup = BeautifulSoup(html, "html.parser")
-            results = soup.find_all("a", {"class": "css-rc5s2u"})
-            total_results += results
+            results += soup.find_all("a", {"class": "css-rc5s2u"})
     driver.close()
 
     root_site = "https://www.olx.pl"
 
     # Iterating over offert
-    for result in total_results:
+    for result in results:
         link = root_site + result.get("href")
         # Checking if data already in db
         offer_exist_in_db = session.query(Olx).filter(Olx.link == link).count()
@@ -70,36 +69,36 @@ def olx_function():
         else:
             # Checking if offert match searching
             if not result.find("p", {"data-testid": "ad-price"}):
-                time = result.find("p", {"class":"css-l3c9zc"})
+                time_tag = result.find("p", {"class":"css-l3c9zc"})
                 # Checking if offert match searching #2
-                if time:
+                if time_tag:
                     # Clearing date data
-                    if "Dzisiaj" in time.get_text():
+                    if "Dzisiaj" in time_tag.get_text():
                         time = date.today()
                     else:
                         # Transfer into date type data
-                        if "Odświeżono" in time.get_text():
-                            time = time.get_text().removeprefix("Odświeżono dnia ")
-                        elif "Dodane" in time.get_text():
-                            time = time.get_text().removeprefix("Dodane ")
+                        if "Odświeżono" in time_tag.get_text():
+                            time_pl = time_tag.get_text().removeprefix("Odświeżono dnia ")
+                        elif "Dodane" in time_tag.get_text():
+                            time_pl = time_tag.get_text().removeprefix("Dodane ")
                         else:
-                            time = time.get_text()
-                        time = date_translate(time)
+                            time_pl = time_tag.get_text()
+                        time = date_translate(time_pl)
                     title = result.find("h6", {"class":"css-1jmx98l"}).get_text()
 
                     # Getting company name from offert
-                    url = requests.get(f"{link}")
-                    soup = BeautifulSoup(url.content, "html.parser")
-                    company = soup.find("h4", {"class":"css-1lcz6o7"})
-                    if company == None:
-                        company = soup.find("h4", {"class":"css-qzwsib"})
-                    company = company.get_text()
+                    url_offert = requests.get(f"{link}")
+                    soup = BeautifulSoup(url_offert.content, "html.parser")
+                    company_tag = soup.find("h4", {"class":"css-1lcz6o7"})
+                    if company_tag == None:
+                        company_tag = soup.find("h4", {"class":"css-qzwsib"})
+                    company = company_tag.get_text()
                     location = result.find("span", {"class":"css-d5w927"}).get_text()
-                    wages = result.find("p", {"class":"css-1hp12oq"})
-                    if wages == None:
-                        wages = "NaN"
+                    wages_tag = result.find("p", {"class":"css-1hp12oq"})
+                    if wages_tag == None:
+                        wages_tag = "NaN"
                     else:
-                        wages = wages.get_text()
+                        wages = wages_tag.get_text()
                     remote = False
 
                     #Searching of remote-avaibility

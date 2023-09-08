@@ -40,12 +40,8 @@ def just_join_function():
     root_site = "https://justjoin.it"
 
     # Iterating over offert
-    for offert in results:
-        link_parent_div = offert.find_parent("div")
-        link_a = link_parent_div.find("a")
-        link_offert = link_a.get("href")
-        link = root_site + link_offert
-
+    for result in results:
+        link = root_site + result.find_parent("div").find("a")["href"]
         # Checking if offert already exist in database
         offer_exist_in_db = (
                 session.query(Just_join).filter(Just_join.link == link).count()
@@ -54,7 +50,7 @@ def just_join_function():
             continue
         else:
             # Scrapping details
-            time = offert.find("div",{"class":"jss249"}).get_text()
+            time = result.find("div",{"class":"jss249"}).get_text()
             if time == "New":
                 time = date.today()
             else:
@@ -62,16 +58,16 @@ def just_join_function():
                 pattern = r"\d+"
                 days_ago = int(re.findall(pattern, time)[0]) 
                 time = date.today() - timedelta(days=days_ago)
-            title = offert.find("div",{"class":"jss246"}).get_text()
-            company = offert.find("div",{"class":"jss252"}).get_text()
-            location = offert.find("div",{"class":"jss253"}).get_text()
+            title = result.find("div",{"class":"jss246"}).get_text()
+            company = result.find("div",{"class":"jss252"}).get_text()
+            location = result.find("div",{"class":"jss253"}).get_text()
             #Checking remote
             if "Fully Remote" in location:
                 remote = True
             else:
                 remote = False
             location = location.split(",")[0]
-            wages = offert.find("div",{"class":"jss263"}).get_text()
+            wages = result.find("div",{"class":"jss263"}).get_text()
         # Saving detail
             new_just_join = Just_join(
                     time=time,

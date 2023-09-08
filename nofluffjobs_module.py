@@ -27,8 +27,8 @@ def nofluffjobs_function():
     # Scrapping data
     html = requests.get("https://nofluffjobs.com/pl/praca-zdalna/Python?page=1&criteria=city%3Dwarszawa%20%20seniority%3Dtrainee,junior")
     soup = BeautifulSoup(html.content, "html.parser")
-    container = soup.find("div", {"class": "list-container ng-star-inserted"})
-    total_results = container.find_all("a", {"class": "posting-list-item"})
+    container_div = soup.find("div", {"class": "list-container ng-star-inserted"})
+    results = container_div.find_all("a", {"class": "posting-list-item"})
 
     # Calculating number of site
     number_of_site_ul = soup.find("ul", {"class": "pagination mb-0 ng-star-inserted"})
@@ -41,13 +41,13 @@ def nofluffjobs_function():
         index +=1
         html = requests.get(f"https://nofluffjobs.com/pl/praca-zdalna/Python?page={index}&criteria=city%3Dwarszawa%20%20seniority%3Dtrainee,junior")
         soup = BeautifulSoup(html.content, "html.parser")
-        container = soup.find("div", {"class": "list-container ng-star-inserted"})
-        results_next_page = container.find_all("a", {"class": "posting-list-item"})
-        total_results += results_next_page
+        container_div = soup.find("div", {"class": "list-container ng-star-inserted"})
+        results_next_page = container_div.find_all("a", {"class": "posting-list-item"})
+        results += results_next_page
     root_site = "https://nofluffjobs.com"
 
     # Iterating over offert
-    for result in total_results:
+    for result in results:
         link = result.get("href")
         link = root_site + link
         # Checking if offer already exist in database

@@ -39,10 +39,9 @@ def solid_jobs_function():
 
     # Iterating over offert
     for result in results:
-        link = result.find("a", {"class": "color-dark-grey color-blue-onhover"}).get(
+        link = root_link + result.find("a", {"class": "color-dark-grey color-blue-onhover"}).get(
             "href"
         )
-        link = root_link + link
         # Checking data in db
         offer_exist_in_db = (
             session.query(SolidJob).filter(SolidJob.link == link).count()

@@ -16,13 +16,13 @@ from base_module import BaseSite, NewsOffert, Base, engine
 
 
 ## List of site:
-solid_jobs_function()
-bulldog_function()
-nofluffjobs_function()
-olx_function()
-pracuj_function()
-just_join_function()
-linkedin_function()
+#solid_jobs_function()
+#bulldog_function()
+#nofluffjobs_function()
+#olx_function()
+#pracuj_function()
+#just_join_function()
+#linkedin_function()
 ### Printing result
 """
 inspector = inspect(engine)
