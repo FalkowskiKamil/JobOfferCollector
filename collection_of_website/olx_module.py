@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-from base_module import BaseSite, NewsOffert, date_translate
+from .base_module import BaseSite, NewsOffert, date_translate
 
 
 class Olx(BaseSite):
@@ -44,8 +44,6 @@ def olx_function(session):
             html = driver.page_source
             soup = BeautifulSoup(html, "html.parser")
             results += soup.find_all("a", {"class": "css-rc5s2u"})
-            print('got it')
-        print('Problem tutaj?')
     driver.close()
 
     root_site = "https://www.olx.pl"

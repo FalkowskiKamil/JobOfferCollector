@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-from base_module import BaseSite, NewsOffert
+from .base_module import BaseSite, NewsOffert
 
 class Linkedin(BaseSite):
     __tablename__ = "Linkedin"

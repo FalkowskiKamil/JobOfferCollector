@@ -4,8 +4,7 @@ from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-from base_module import BaseSite, NewsOffert
-
+from .base_module import BaseSite, NewsOffert
 class Just_join(BaseSite):
     __tablename__ = "Just_join"
 
