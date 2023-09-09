@@ -1,10 +1,9 @@
-import re
 from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-from .base_module import BaseSite, NewsOffert, date_translate
+from collection_of_website.base_module import BaseSite, NewsOffert, date_translate, find_digit
 
 
 class Pracuj(BaseSite):
@@ -27,11 +26,8 @@ def pracuj_function(session):
     soup = BeautifulSoup(html, "html.parser")
 
     # Searching of offert and page count
-    number_of_offert = soup.find("span", {"class": "listing_jebwd19"}).get_text()
-    pattern = r"\d+"
-    number_of_offert = re.findall(pattern, number_of_offert)
-    page_number = soup.find("div", {"class": "listing_w1sj4gb8"}).get_text()
-    page_number = re.findall(pattern, page_number)
+    page_number_text = soup.find("div", {"class": "listing_w1sj4gb8"}).get_text()
+    page_number = find_digit(page_number_text)
     section_offers = soup.find("div", {"data-test": "section-offers"})
     results = section_offers.find_all(
         "div", {"class": "listing_b1evff58 listing_po9665q"}

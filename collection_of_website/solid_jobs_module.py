@@ -2,7 +2,8 @@ from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-from .base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert
+
 
 class SolidJob(BaseSite):
     __tablename__ = "Solid_Jobs"

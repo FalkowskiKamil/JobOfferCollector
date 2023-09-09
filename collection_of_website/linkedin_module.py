@@ -1,11 +1,11 @@
-import re
 from time import sleep
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-from .base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
+
 
 class Linkedin(BaseSite):
     __tablename__ = "Linkedin"
@@ -25,8 +25,7 @@ def linkedin_function(session):
 
     # Scrolling part
     number_of_offert_text = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/h1/span[1]").text
-    pattern = r"\d+"
-    number_of_offert = int(re.findall(pattern, number_of_offert_text)[0])
+    number_of_offert = find_digit(number_of_offert_text)
     if number_of_offert > 25:
         if number_of_offert < 160:
             scrolling_count = int((number_of_offert / 25)+1)
@@ -62,7 +61,7 @@ def linkedin_function(session):
         try:
             # Calculating delta-date
             time = (result.find("time", {"class":"job-search-card__listdate"}).get_text()).strip()
-            days_ago = int(re.findall(pattern, time)[0]) 
+            days_ago = find_digit(time)
             time = date.today() - timedelta(days=days_ago)
         except:
             time = date.today()

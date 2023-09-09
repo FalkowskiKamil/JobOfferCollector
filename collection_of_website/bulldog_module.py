@@ -2,7 +2,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-from .base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert
 
 
 class Bulldog(BaseSite):
@@ -33,7 +33,7 @@ def bulldog_function(session):
     # Iterating over offert
     for result in results:
         link = result.get("href")
-
+        
         # Checking if data already exist in db
         offer_exist_in_db = session.query(Bulldog).filter(Bulldog.link == link).count()
         if offer_exist_in_db > 0:

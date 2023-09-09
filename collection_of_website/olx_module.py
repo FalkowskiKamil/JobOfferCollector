@@ -1,4 +1,3 @@
-import re
 import requests
 from time import sleep
 from datetime import date
@@ -6,7 +5,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-from .base_module import BaseSite, NewsOffert, date_translate
+from collection_of_website.base_module import BaseSite, NewsOffert, date_translate, find_digit
 
 
 class Olx(BaseSite):
@@ -30,9 +29,8 @@ def olx_function(session):
     
     # Checking count of offert
     results = soup.find_all("a", {"class": "css-rc5s2u"})
-    number_of_offert = soup.find("span", {"data-testid":"total-count"}).get_text()
-    pattern = r'\d+'
-    number_of_offert = re.findall(pattern, number_of_offert)
+    number_of_offert_text = soup.find("span", {"data-testid":"total-count"}).get_text()
+    number_of_offert = find_digit(number_of_offert_text)
 
     # Calculating next-page count offert
     if int(number_of_offert[0]) > 40:

@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from .base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert
 
 
 class Nofluffjobs(BaseSite):
