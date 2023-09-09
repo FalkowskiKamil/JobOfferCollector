@@ -1,3 +1,4 @@
+import os
 from sqlalchemy import inspect, func
 from sqlalchemy.orm import sessionmaker
 
@@ -11,14 +12,22 @@ from collection_of_website.solid_jobs_module import solid_jobs_function
 from collection_of_website.base_module import Base, engine, BaseSite, NewsOffert
 
 
-def collect_offert():
+def collect_offert(args=None):
     inspector = inspect(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
-
     # Checking db
     if not inspector.has_table(NewsOffert.__tablename__):
         Base.metadata.create_all(engine)
+    elif args:
+        source_counts = (
+        session.query(NewsOffert.source, func.count(NewsOffert.source))
+        .group_by(NewsOffert.source)
+        .all()
+         )
+        for source, count in source_counts:
+            print(f"{count}x{source}")
+        return
     else:
         # Deleting last searching data
         session.query(NewsOffert).delete()
@@ -45,6 +54,10 @@ def collect_offert():
     # Saving offert
     session.commit()
     session.close()
+
+    # Clearing terminal
+    clear = lambda: os.system('cls' if os.name == 'nt' else 'clear')
+    clear()
 
     # Summary of scrapping
     source_counts = (
