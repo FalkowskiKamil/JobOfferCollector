@@ -9,7 +9,7 @@ from sqlalchemy import inspect, func
 from sqlalchemy.orm import sessionmaker
 import time
 from .just_join_module import just_join_function
-from .base_module import NewsOffert, Base, engine
+from .base_module import NewsOffert, Base, engine, BaseSite
 
 
 def collect_offert():
@@ -21,7 +21,13 @@ def collect_offert():
     if not inspector.has_table(NewsOffert.__tablename__):
         Base.metadata.create_all(engine)
     else:
+        #Deleting last searching data
         session.query(NewsOffert).delete()
+        # Deleting data oldest than 30 days
+        for table_class in BaseSite.__subclasses__():
+            records_to_delete = session.query(table_class).filter(table_class.days_until_deadline == 0).all()
+            for record in records_to_delete:
+                session.delete(record)
         session.commit()
 
     solid_jobs_function(session)
@@ -33,9 +39,13 @@ def collect_offert():
     linkedin_function(session)
     session.commit()
     session.close()
+
+    # Summary of scrapping
     source_counts = session.query(NewsOffert.source, func.count(NewsOffert.source)).group_by(NewsOffert.source).all()
 
     for source, count in source_counts:
         print(f"{count}x{source}")
+
+
     finish = time.perf_counter()
     print(finish-start)
