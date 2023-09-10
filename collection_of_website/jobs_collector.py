@@ -11,6 +11,7 @@ from collection_of_website.nofluffjobs_module import nofluffjobs_function
 from collection_of_website.olx_module import olx_function
 from collection_of_website.pracodajnia_module import pracodajnia_function
 from collection_of_website.pracuj_module import pracuj_function
+from collection_of_website.rocketjobs_module import rocketjobs_function
 from collection_of_website.solid_jobs_module import solid_jobs_function
 from collection_of_website.szukampracy_module import szukampracy_function
 from collection_of_website.talent_module import talent_function
@@ -23,7 +24,7 @@ def collect_offert(args=None):
     Session = sessionmaker(bind=engine)
     session = Session()
     # Checking db
-    """    
+    
     if not inspector.has_table(NewsOffert.__tablename__):
         Base.metadata.create_all(engine)
     
@@ -50,7 +51,7 @@ def collect_offert(args=None):
             )
             for record in records_to_delete:
                 session.delete(record)
-        session.commit()"""
+        session.commit()
 
     # Scrapping site
     #bulldog_function(session)
@@ -62,6 +63,7 @@ def collect_offert(args=None):
     #olx_function(session)
     #pracodajnia_function(session)
     #pracuj_function(session)
+    #rocketjobs_function(session)
     #solid_jobs_function(session)
     #szukampracy_function(session)
     #talent_function(session)
@@ -75,7 +77,7 @@ def collect_offert(args=None):
     # Clearing terminal
     clear = lambda: os.system('cls' if os.name == 'nt' else 'clear')
     #clear()
-
+    
     # Summary of scrapping
     source_counts = (
         session.query(NewsOffert.source, func.count(NewsOffert.source))
