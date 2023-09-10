@@ -9,6 +9,7 @@ from collection_of_website.nofluffjobs_module import nofluffjobs_function
 from collection_of_website.olx_module import olx_function
 from collection_of_website.pracuj_module import pracuj_function
 from collection_of_website.solid_jobs_module import solid_jobs_function
+from collection_of_website.szukampracy_module import szukampracy_function
 from collection_of_website.base_module import Base, engine, BaseSite, NewsOffert
 
 
@@ -17,9 +18,11 @@ def collect_offert(args=None):
     Session = sessionmaker(bind=engine)
     session = Session()
     # Checking db
+    
     if not inspector.has_table(NewsOffert.__tablename__):
         Base.metadata.create_all(engine)
-    elif args:
+    
+    elif args=="last":
         source_counts = (
         session.query(NewsOffert.source, func.count(NewsOffert.source))
         .group_by(NewsOffert.source)
@@ -28,6 +31,8 @@ def collect_offert(args=None):
         for source, count in source_counts:
             print(f"{count}x{source}")
         return
+    elif args == "init": 
+        Base.metadata.create_all(engine)
     else:
         # Deleting last searching data
         session.query(NewsOffert).delete()
@@ -41,23 +46,22 @@ def collect_offert(args=None):
             for record in records_to_delete:
                 session.delete(record)
         session.commit()
-
     # Scrapping site
-    bulldog_function(session)
-    just_join_function(session)
-    linkedin_function(session)
-    nofluffjobs_function(session)
-    olx_function(session)
-    pracuj_function(session)
-    solid_jobs_function(session)
-
+    #bulldog_function(session)
+    #just_join_function(session)
+    #linkedin_function(session)
+    #nofluffjobs_function(session)
+    #olx_function(session)
+    #pracuj_function(session)
+    #solid_jobs_function(session)
+    #szukampracy_function(session)
     # Saving offert
     session.commit()
     session.close()
 
     # Clearing terminal
     clear = lambda: os.system('cls' if os.name == 'nt' else 'clear')
-    clear()
+    #clear()
 
     # Summary of scrapping
     source_counts = (

@@ -49,7 +49,7 @@ def nofluffjobs_function(session):
             # Scrapping details
             title = result.find("h3").get_text()
             company = result.find("span").get_text().strip()
-            place = result.find(
+            location = result.find(
                 "span",
                 {
                     "class": "tw-text-ellipsis tw-inline-block tw-overflow-hidden tw-whitespace-nowrap lg:tw-max-w-[100px] tw-text-right"
@@ -62,14 +62,14 @@ def nofluffjobs_function(session):
                 },
             ).get_text()
             remote = False
-            if place == " Zdalnie ":
+            if location == " Zdalnie ":
                 remote = True
 
             # Saving details
             new_nofluffjobs = Nofluffjobs(
                 offer_title=title,
                 company_name=company,
-                location=place,
+                location=location,
                 wages=wages,
                 link=link,
                 remote=remote,
@@ -78,7 +78,7 @@ def nofluffjobs_function(session):
             new_offer = NewsOffert(
                 offer_title=title,
                 company_name=company,
-                location=place,
+                location=location,
                 wages=wages,
                 link=link,
                 remote=remote,

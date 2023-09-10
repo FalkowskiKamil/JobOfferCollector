@@ -33,7 +33,7 @@ def olx_function(session):
     number_of_offert = find_digit(number_of_offert_text)
 
     # Calculating next-page count offert
-    if int(number_of_offert[0]) > 40:
+    if number_of_offert > 40:
         number_of_pages_ul = soup.find("ul", {"class": "pagination-list"})
         number_of_pages = list(number_of_pages_ul.find_all("li"))[-1].get_text()
         # Collecting data from next pages
