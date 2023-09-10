@@ -13,6 +13,7 @@ from collection_of_website.pracodajnia_module import pracodajnia_function
 from collection_of_website.pracuj_module import pracuj_function
 from collection_of_website.solid_jobs_module import solid_jobs_function
 from collection_of_website.szukampracy_module import szukampracy_function
+from collection_of_website.talent_module import talent_function
 from collection_of_website.base_module import Base, engine, BaseSite, NewsOffert
 
 
@@ -61,6 +62,9 @@ def collect_offert(args=None):
     #pracuj_function(session)
     #solid_jobs_function(session)
     #szukampracy_function(session)
+    talent_function(session)
+
+    
     # Saving offert
     session.commit()
     session.close()

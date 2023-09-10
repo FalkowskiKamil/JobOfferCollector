@@ -1,6 +1,5 @@
 from time import sleep
 from datetime import date, timedelta
-import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
@@ -14,7 +13,7 @@ class Infopraca(BaseSite):
 def infopraca_function(session):
     # Decrement deadline
     infopraca = Infopraca()
-    #infopraca.decrement_deadline(session)
+    infopraca.decrement_deadline(session)
 
 
     driver = webdriver.Chrome()
