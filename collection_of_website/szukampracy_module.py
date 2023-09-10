@@ -11,7 +11,7 @@ class Szukampracy(BaseSite):
 def szukampracy_function(session):
     # Decrement deadline
     szukampracy = Szukampracy()
-    #szukampracy.decrement_deadline(session)
+    szukampracy.decrement_deadline(session)
 
     # Scrapping data
     html = requests.get("https://szukampracy.pl/ogloszenie/strona/1?SearchForm%5Bstanowisko%5D=Python&SearchForm%5Bregion%5D%5B0%5D=3&SearchForm%5Bkategorie%5D=")
@@ -29,34 +29,43 @@ def szukampracy_function(session):
         break
 
     root_link = "https://szukampracy.pl"
-    for result in results:
-        company = result.find("a").get("title")
-        box = result.find("span",{"class":"description nun-sb"})
+    for result in results:          
         link = root_link + box.find("a").get("href")
-        title = box.find("h3").get_text()
-        time = box.find("span",{"class":"nun-b"}).get_text()
-        location = box.find("a", {"class":"nun-b"}).get_text().strip().split()[0]
-        wages = "NaN"
-        remote = False
-        
-        # Saving details
-        new_szukam_pracy = Szukampracy(
-            offer_title=title,
-            company_name=company,
-            location=location,
-            wages=wages,
-            link=link,
-            remote=remote,
+        # Checking if offer already exist in database
+        offer_exist_in_db = (
+            session.query(Szukampracy).filter(Szukampracy.link == link).count()
         )
+        if offer_exist_in_db > 0:
+            continue
+        else:
+            company = result.find("a").get("title")
+            box = result.find("span",{"class":"description nun-sb"})
+            title = box.find("h3").get_text()
+            time = box.find("span",{"class":"nun-b"}).get_text()
+            location = box.find("a", {"class":"nun-b"}).get_text().strip().split()[0]
+            wages = "NaN"
+            remote = False
+            
+            # Saving details
+            new_szukam_pracy = Szukampracy(
+                time=time,
+                offer_title=title,
+                company_name=company,
+                location=location,
+                wages=wages,
+                link=link,
+                remote=remote,
+            )
 
-        new_offer = NewsOffert(
-            offer_title=title,
-            company_name=company,
-            location=location,
-            wages=wages,
-            link=link,
-            remote=remote,
-            source="SzukamPracy",
-        )
-        session.add_all([new_szukam_pracy, new_offer])
+            new_offer = NewsOffert(
+                time=time,
+                offer_title=title,
+                company_name=company,
+                location=location,
+                wages=wages,
+                link=link,
+                remote=remote,
+                source="SzukamPracy",
+            )
+            session.add_all([new_szukam_pracy, new_offer])
 
