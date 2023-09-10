@@ -12,7 +12,7 @@ class Talent(BaseSite):
 def talent_function(session):
     # Decrement deadline
     talent = Talent()
-    #talent.decrement_deadline(session)    
+    talent.decrement_deadline(session)    
     
     # Scrapping data
     html = requests.get("https://pl.talent.com/pl/jobs?k=Python&l=Warsaw%2C+Mazovia&radius=50")

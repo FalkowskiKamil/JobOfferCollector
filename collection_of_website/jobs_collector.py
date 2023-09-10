@@ -14,6 +14,7 @@ from collection_of_website.pracuj_module import pracuj_function
 from collection_of_website.solid_jobs_module import solid_jobs_function
 from collection_of_website.szukampracy_module import szukampracy_function
 from collection_of_website.talent_module import talent_function
+from collection_of_website.theprotocol_module import theprotocol_function
 from collection_of_website.base_module import Base, engine, BaseSite, NewsOffert
 
 
@@ -22,7 +23,7 @@ def collect_offert(args=None):
     Session = sessionmaker(bind=engine)
     session = Session()
     # Checking db
-    
+    """    
     if not inspector.has_table(NewsOffert.__tablename__):
         Base.metadata.create_all(engine)
     
@@ -49,7 +50,8 @@ def collect_offert(args=None):
             )
             for record in records_to_delete:
                 session.delete(record)
-        session.commit()
+        session.commit()"""
+
     # Scrapping site
     #bulldog_function(session)
     #jobspl_function(session)
@@ -62,9 +64,10 @@ def collect_offert(args=None):
     #pracuj_function(session)
     #solid_jobs_function(session)
     #szukampracy_function(session)
-    talent_function(session)
+    #talent_function(session)
+    #theprotocol_function(session)
 
-    
+
     # Saving offert
     session.commit()
     session.close()
