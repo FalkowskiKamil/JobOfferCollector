@@ -43,7 +43,7 @@ def szukampracy_function(session):
             title = box.find("h3").get_text()
             time = box.find("span",{"class":"nun-b"}).get_text()
             location = box.find("a", {"class":"nun-b"}).get_text().strip().split()[0]
-            wages = "NaN"
+            wages = "NULL"
             remote = False
             
             # Saving details

@@ -16,7 +16,7 @@ class BaseSite(Base):
     offer_title = Column(String)
     company_name = Column(String)
     location = Column(String)
-    wages = Column(String, default="NaN")
+    wages = Column(String, default="NULL")
     link = Column(String, unique=True)
     remote = Column(Boolean, default=False)
     applicated = Column(Boolean, default=False)

@@ -83,7 +83,7 @@ def olx_function(session):
                     location = result.find("span", {"class":"css-d5w927"}).get_text()
                     wages_tag = result.find("p", {"class":"css-1hp12oq"})
                     if wages_tag == None:
-                        wages = "NaN"
+                        wages = "NULL"
                     else:
                         wages = wages_tag.get_text()
                     remote = False

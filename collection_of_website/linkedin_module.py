@@ -72,7 +72,7 @@ def linkedin_function(session):
                 offer_title=title,
                 company_name=company,
                 location=location,
-                wages="NaN",
+                wages="NULL",
                 link=link,
                 remote=False,
             )
@@ -81,7 +81,7 @@ def linkedin_function(session):
             offer_title=title,
             company_name=company,
             location=location,
-            wages="Nan",
+            wages="NULL",
             link=link,
             remote=False,
             source="Linkedin",

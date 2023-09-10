@@ -8,6 +8,7 @@ from collection_of_website.just_join_module import just_join_function
 from collection_of_website.linkedin_module import linkedin_function
 from collection_of_website.nofluffjobs_module import nofluffjobs_function
 from collection_of_website.olx_module import olx_function
+from collection_of_website.pracodajnia_module import pracodajnia_function
 from collection_of_website.pracuj_module import pracuj_function
 from collection_of_website.solid_jobs_module import solid_jobs_function
 from collection_of_website.szukampracy_module import szukampracy_function
@@ -54,6 +55,7 @@ def collect_offert(args=None):
     #linkedin_function(session)
     #nofluffjobs_function(session)
     #olx_function(session)
+    #pracodajnia_function(session)
     #pracuj_function(session)
     #solid_jobs_function(session)
     #szukampracy_function(session)

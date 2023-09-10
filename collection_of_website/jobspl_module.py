@@ -12,7 +12,7 @@ class JobsPl(BaseSite):
 def jobspl_function(session):
     # Decrement deadline
     jobspl = JobsPl()
-    #jobspl.decrement_deadline(session)
+    jobspl.decrement_deadline(session)
 
     # Scrapping data
     html = requests.get("https://www.jobs.pl/oferty/python;k")
@@ -34,7 +34,7 @@ def jobspl_function(session):
             time = datetime.strptime(time_to_convert, '%d.%m.%Y').date()
             location = result.find("p",{"class":"offer-location"}).find("a").get_text()
             remote = False
-            wages = "NaN"
+            wages = "NULL"
             # Saving details
             new_jobspl = JobsPl(
                 time=time,

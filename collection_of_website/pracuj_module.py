@@ -87,7 +87,7 @@ def pracuj_function(session):
                 try:
                     wages = result.find("span", {"class": "listing_sug0jpb"}).get_text()
                 except:
-                    wages = "NaN"
+                    wages = "NULL"
                 remote = False
                 additional_information = result.find_all(
                     "li", {"class": "listing_isg28kc"}
