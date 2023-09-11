@@ -17,7 +17,7 @@ class Indeed(BaseSite):
 def indeed_function(session):
     # Decrement deadline
     indeed = Indeed()
-    #indeed.decrement_deadline(session)
+    indeed.decrement_deadline(session)
 
     driver = webdriver.Chrome()
     driver.get("https://pl.indeed.com/jobs?q=Python&l=Warszawa%2C+mazowieckie&radius=50&fromage=14&vjk=ebe1be7f38146e50")
