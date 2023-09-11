@@ -56,11 +56,11 @@ def collect_offert(args=None):
         session.commit()
 
     # Scrapping site
-    adzuna_function(session)
+    #adzuna_function(session)
     #bulldog_function(session)
     #jobspl_function(session)
     #just_join_function(session)
-    #indeed_function(session)
+    indeed_function(session)
     #infopraca_function(session)
     #linkedin_function(session)
     #nofluffjobs_function(session)
