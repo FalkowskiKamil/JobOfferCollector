@@ -2,9 +2,11 @@ import os
 from sqlalchemy import inspect, func
 from sqlalchemy.orm import sessionmaker
 
+from collection_of_website.adzuna_module import adzuna_function
 from collection_of_website.bulldog_module import bulldog_function
 from collection_of_website.jobspl_module import jobspl_function
 from collection_of_website.just_join_module import just_join_function
+from collection_of_website.indeed_module import indeed_function
 from collection_of_website.infopraca_module import infopraca_function
 from collection_of_website.linkedin_module import linkedin_function
 from collection_of_website.nofluffjobs_module import nofluffjobs_function
@@ -54,9 +56,11 @@ def collect_offert(args=None):
         session.commit()
 
     # Scrapping site
+    adzuna_function(session)
     #bulldog_function(session)
     #jobspl_function(session)
     #just_join_function(session)
+    #indeed_function(session)
     #infopraca_function(session)
     #linkedin_function(session)
     #nofluffjobs_function(session)
