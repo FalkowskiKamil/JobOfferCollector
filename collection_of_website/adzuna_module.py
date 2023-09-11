@@ -31,6 +31,8 @@ def adzuna_function(session):
 
     for result in results:
         link = result.find("a",{"class":"text-base md:text-xl lg:text-2xl text-adzuna-green-500 hover:underline"}).get("href")
+        if "?se=" in link:
+            link = link.split("?se=")[0]
         # Checking if offer already exist in database
         offer_exist_in_db = (
             session.query(Adzuna).filter(Adzuna.link == link).count()
