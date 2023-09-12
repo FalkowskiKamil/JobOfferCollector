@@ -21,8 +21,7 @@ def szukampracy_function(session):
     results = ul_list[1].find_all("li",{"class":"ad-on-list"})
     number_of_pages_container = soup.find("ul",{"class":"pagination"})
     number_of_pages = len(number_of_pages_container.find_all("li"))-2
-    for page in range(number_of_pages):
-        page +=2
+    for page in range(2, number_of_pages+2):
         html = requests.get(f"https://szukampracy.pl/ogloszenie/strona/{page}?SearchForm%5Bstanowisko%5D=Python&SearchForm%5Bregion%5D%5B0%5D=3&SearchForm%5Bkategorie%5D=")
         soup = BeautifulSoup(html.content, "html.parser")
         ul_list = soup.find_all("ul",{"class":"offer-list"})

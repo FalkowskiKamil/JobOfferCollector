@@ -30,7 +30,7 @@ def glassdor_function(session):
         "a", {"class": "d-flex justify-content-between p-std jobCard"}
     )
     number_of_pages_text = soup.find("div", {"class": "paginationFooter"}).get_text()
-    number_of_pages = int(number_of_pages_text[-2:].strip())
+    number_of_pages = int(number_of_pages_text[-2:].strip())-1
     for page in range(number_of_pages - 1):
         driver = next_page(driver)
         html = driver.page_source

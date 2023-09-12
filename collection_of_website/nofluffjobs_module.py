@@ -22,12 +22,10 @@ def nofluffjobs_function(session):
     # Calculating number of site
     number_of_site_ul = soup.find("ul", {"class": "pagination mb-0 ng-star-inserted"})
     number_of_site = number_of_site_ul.find_all("li")
-    number_of_site = int(list(number_of_site)[-2].get_text().strip())
+    number_of_site = int(list(number_of_site)[-2].get_text().strip()) - 1
 
     # Iterating over sites
-    index = 1
-    for site in range(number_of_site - 1):
-        index +=1
+    for site in range(1, number_of_site+1):
         html = requests.get(f"https://nofluffjobs.com/pl/praca-zdalna/Python?page={index}&criteria=city%3Dwarszawa%20%20seniority%3Dtrainee,junior")
         soup = BeautifulSoup(html.content, "html.parser")
         container_div = soup.find("div", {"class": "list-container ng-star-inserted"})

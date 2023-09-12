@@ -1,3 +1,4 @@
+import math
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -22,13 +23,12 @@ def infopraca_function(session):
     soup = BeautifulSoup(html, "html.parser")
     results = soup.find_all("div",{"class":"job-offer"})
     number_of_offert = find_digit(soup.find("div",{"class":"fs-lg me-4"}).get_text())
-    number_of_pages = int(number_of_offert/18)
-    for page in range(number_of_pages-1):
-            page += 2
-            driver.get(f"https://www.infopraca.pl/praca?d=50&lc=&pg={page}&q=python")
-            html = driver.page_source
-            soup = BeautifulSoup(html, "html.parser")
-            results += soup.find_all("div",{"class":"job-offer"})
+    number_of_pages = math.ceil(number_of_offert/18) - 1
+    for page in range(2, number_of_pages +2):
+        driver.get(f"https://www.infopraca.pl/praca?d=50&lc=&pg={page}&q=python")
+        html = driver.page_source
+        soup = BeautifulSoup(html, "html.parser")
+        results += soup.find_all("div",{"class":"job-offer"})
     
 
     root_link = "https://www.infopraca.pl/"

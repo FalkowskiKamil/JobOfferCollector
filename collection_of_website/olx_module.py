@@ -35,10 +35,11 @@ def olx_function(session):
     # Calculating next-page count offert
     if number_of_offert > 40:
         number_of_pages_ul = soup.find("ul", {"class": "pagination-list"})
-        number_of_pages = list(number_of_pages_ul.find_all("li"))[-1].get_text()
+        number_of_pages_raw = list(number_of_pages_ul.find_all("li"))[-1].get_text()
+        number_of_pages = int(number_of_pages.strip()) - 1
         # Collecting data from next pages
-        for page in range(int(number_of_pages.strip()) - 1):
-            driver.get(f"https://www.olx.pl/praca/q-Python/?page={page+2}")
+        for page in range(2, number_of_pages_ul+2):
+            driver.get(f"https://www.olx.pl/praca/q-Python/?page={page}")
             html = driver.page_source
             soup = BeautifulSoup(html, "html.parser")
             results += soup.find_all("a", {"class": "css-rc5s2u"})

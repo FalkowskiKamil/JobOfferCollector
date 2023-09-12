@@ -23,8 +23,7 @@ def adzuna_function(session):
 
     number_of_offert = int(soup.find("h1").find("span").get("data-cy-count"))
     number_of_page = math.ceil(number_of_offert/50)
-    for page in range(number_of_page):
-        page +=2
+    for page in range(2, number_of_page+2):
         response = requests.get(f'https://www.adzuna.pl/search?adv=1&loc=129972&pp=50&qtl=Junior&qwd=Python&page={page}')
         soup = BeautifulSoup(response.content, "html.parser")
         results += soup.find_all("div",{"class":"a flex gap-2 md:gap-4 p-3 md:pb-1 border-b border-solid border-adzuna-gray-200 cursor-pointer hover:bg-adzuna-green-100 hover:border-adzuna-green-100 md:border md:rounded-lg md:mb-4"})
