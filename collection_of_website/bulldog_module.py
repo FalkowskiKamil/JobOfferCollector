@@ -1,4 +1,3 @@
-from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
@@ -19,7 +18,6 @@ def bulldog_function(session):
     driver.get(
         "https://bulldogjob.pl/companies/jobs/s/skills,Python/experienceLevel,junior,intern"
     )
-    sleep(1)
     html = driver.page_source
     driver.close()
     soup = BeautifulSoup(html, "html.parser")

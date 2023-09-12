@@ -1,4 +1,3 @@
-from time import sleep
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -18,7 +17,6 @@ def infopraca_function(session):
 
     driver = webdriver.Chrome()
     driver.get("https://www.infopraca.pl/praca?q=python&lc=Warszawa&d=50&pg=1")
-    sleep(1)
     # Scrapping data
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
@@ -28,7 +26,6 @@ def infopraca_function(session):
     for page in range(number_of_pages-1):
             page += 2
             driver.get(f"https://www.infopraca.pl/praca?d=50&lc=&pg={page}&q=python")
-            sleep(1)
             html = driver.page_source
             soup = BeautifulSoup(html, "html.parser")
             results += soup.find_all("div",{"class":"job-offer"})

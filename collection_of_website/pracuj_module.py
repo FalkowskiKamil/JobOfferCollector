@@ -1,7 +1,8 @@
-from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from collection_of_website.base_module import BaseSite, NewsOffert, date_translate, find_digit
 
@@ -20,7 +21,6 @@ def pracuj_function(session):
     driver.get(
         "https://www.pracuj.pl/praca/python;kw/warszawa;wp?rd=30&cc=5016001%2C5016002%2C5016003%2C5016004%2C5001%2C5002%2C5003%2C5004%2C5005%2C5006%2C5037%2C5036%2C5007%2C5008%2C5009%2C5010%2C5011%2C5015%2C5014%2C5013%2C5012%2C5035%2C5033%2C5032%2C5031%2C5028%2C5027%2C5025%2C5026%2C5024%2C5023%2C5022%2C5021%2C5020%2C5019%2C5018%2C5017%2C5034&et=1%2C17&pn=1"
     )
-    sleep(2)
     accept_cookies(driver)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
@@ -39,7 +39,6 @@ def pracuj_function(session):
         driver.get(
             f"https://www.pracuj.pl/praca/python;kw/warszawa;wp?rd=30&cc=5016001%2C5016002%2C5016003%2C5016004%2C5001%2C5002%2C5003%2C5004%2C5005%2C5006%2C5037%2C5036%2C5007%2C5008%2C5009%2C5010%2C5011%2C5015%2C5014%2C5013%2C5012%2C5035%2C5033%2C5032%2C5031%2C5028%2C5027%2C5025%2C5026%2C5024%2C5023%2C5022%2C5021%2C5020%2C5019%2C5018%2C5017%2C5034&et=1%2C17&pn={index}"
         )
-        sleep(2)
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
         section_offers = soup.find("div", {"data-test": "section-offers"})
@@ -120,9 +119,7 @@ def pracuj_function(session):
 
 
 def accept_cookies(driver):
-    cookie_button = driver.find_element(
-        By.XPATH, "/html/body/div[1]/div/div[4]/div/div/div/div[3]/div/button[1]"
+    cookie_button = WebDriverWait(driver, 2).until(
+        EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/div/div[4]/div/div/div/div[3]/div/button[1]"))
     )
-    sleep(1)
     cookie_button.click()
-    sleep(2)

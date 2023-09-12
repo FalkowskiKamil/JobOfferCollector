@@ -1,3 +1,4 @@
+import time
 import os
 from sqlalchemy import inspect, func
 from sqlalchemy.orm import sessionmaker
@@ -5,10 +6,10 @@ from sqlalchemy.orm import sessionmaker
 from collection_of_website.adzuna_module import adzuna_function
 from collection_of_website.bulldog_module import bulldog_function
 from collection_of_website.glassdor_module import glassdor_function
-from collection_of_website.jobspl_module import jobspl_function
-from collection_of_website.just_join_module import just_join_function
 from collection_of_website.indeed_module import indeed_function
 from collection_of_website.infopraca_module import infopraca_function
+from collection_of_website.jobspl_module import jobspl_function
+from collection_of_website.just_join_module import just_join_function
 from collection_of_website.linkedin_module import linkedin_function
 from collection_of_website.nofluffjobs_module import nofluffjobs_function
 from collection_of_website.olx_module import olx_function
@@ -23,24 +24,25 @@ from collection_of_website.base_module import Base, engine, BaseSite, NewsOffert
 
 
 def collect_offert(args=None):
+    start = time.perf_counter()
     inspector = inspect(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
     # Checking db
-    
+
     if not inspector.has_table(NewsOffert.__tablename__):
         Base.metadata.create_all(engine)
-    
-    elif args=="last":
+
+    elif args == "last":
         source_counts = (
-        session.query(NewsOffert.source, func.count(NewsOffert.source))
-        .group_by(NewsOffert.source)
-        .all()
-         )
+            session.query(NewsOffert.source, func.count(NewsOffert.source))
+            .group_by(NewsOffert.source)
+            .all()
+        )
         for source, count in source_counts:
             print(f"{count}x{source}")
         return
-    elif args == "init": 
+    elif args == "init":
         Base.metadata.create_all(engine)
     else:
         # Deleting last searching data
@@ -56,15 +58,16 @@ def collect_offert(args=None):
                 session.delete(record)
         session.commit()
 
-    # Scrapping site
     #adzuna_function(session)
     #bulldog_function(session)
     #glassdor_function(session)
-    #jobspl_function(session)
-    #just_join_function(session)
     #indeed_function(session)
     #infopraca_function(session)
+    #jobspl_function(session)
+    #just_join_function(session)
+
     linkedin_function(session)
+    
     #nofluffjobs_function(session)
     #olx_function(session)
     #pracodajnia_function(session)
@@ -75,15 +78,14 @@ def collect_offert(args=None):
     #talent_function(session)
     #theprotocol_function(session)
 
-
     # Saving offert
     session.commit()
     session.close()
 
     # Clearing terminal
-    clear = lambda: os.system('cls' if os.name == 'nt' else 'clear')
-    #clear()
-    
+    clear = lambda: os.system("cls" if os.name == "nt" else "clear")
+    # clear()
+
     # Summary of scrapping
     source_counts = (
         session.query(NewsOffert.source, func.count(NewsOffert.source))
@@ -93,3 +95,5 @@ def collect_offert(args=None):
 
     for source, count in source_counts:
         print(f"{count}x{source}")
+    finish = time.perf_counter()
+    print(f"{finish - start} czas")

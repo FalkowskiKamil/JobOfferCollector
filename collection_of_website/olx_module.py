@@ -1,9 +1,10 @@
 import requests
-from time import sleep
 from datetime import date
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from collection_of_website.base_module import BaseSite, NewsOffert, date_translate, find_digit
 
@@ -22,7 +23,6 @@ def olx_function(session):
     driver.get(
         "https://www.olx.pl/praca/q-Python/?page=1"
     )
-    sleep(2)
     accept_cookies(driver)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
@@ -120,7 +120,7 @@ def olx_function(session):
 
 
 def accept_cookies(driver):
-    cookie_button = driver.find_element(By.ID, "onetrust-accept-btn-handler")
-    sleep(1)
+    cookie_button = WebDriverWait(driver, 2).until(
+        EC.element_to_be_clickable((By.ID, "onetrust-accept-btn-handler"))
+    )    
     cookie_button.click()
-    sleep(2)

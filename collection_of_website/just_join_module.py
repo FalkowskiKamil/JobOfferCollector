@@ -1,4 +1,3 @@
-from time import sleep
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -18,7 +17,6 @@ def just_join_function(session):
     # Scrapping data
     driver = webdriver.Chrome()
     driver.get("https://justjoin.it/all/python/junior")
-    sleep(2)
     html = driver.page_source
     driver.close()
     soup = BeautifulSoup(html, "html.parser")

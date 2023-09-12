@@ -1,4 +1,3 @@
-from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
@@ -17,7 +16,6 @@ def solid_jobs_function(session):
     # Init scrapping
     driver = webdriver.Chrome()
     driver.get("https://solid.jobs/offers/it;experiences=Junior;subcategories=Python")
-    sleep(1)
     html = driver.page_source
     driver.close()
     soup = BeautifulSoup(html, "html.parser")

@@ -80,7 +80,7 @@ def adzuna_function(session):
                 wages=wages,
                 link=link,
                 remote=remote,
-                source="infopraca",
+                source="adzuna",
             )
             session.add_all([new_adzuna, new_offer])
     

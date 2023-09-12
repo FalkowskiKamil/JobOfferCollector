@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 from collection_of_website.base_module import BaseSite, NewsOffert
 
@@ -30,6 +31,8 @@ def szukampracy_function(session):
 
     root_link = "https://szukampracy.pl"
     for result in results:          
+        
+        box = result.find("span",{"class":"description nun-sb"})
         link = root_link + box.find("a").get("href")
         # Checking if offer already exist in database
         offer_exist_in_db = (
@@ -39,9 +42,9 @@ def szukampracy_function(session):
             continue
         else:
             company = result.find("a").get("title")
-            box = result.find("span",{"class":"description nun-sb"})
             title = box.find("h3").get_text()
-            time = box.find("span",{"class":"nun-b"}).get_text()
+            time_raw = box.find("span",{"class":"nun-b"}).get_text()
+            time = datetime.strptime(time_raw, '%d-%m-%Y')
             location = box.find("a", {"class":"nun-b"}).get_text().strip().split()[0]
             wages = "NULL"
             remote = False

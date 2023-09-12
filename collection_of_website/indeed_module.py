@@ -1,10 +1,12 @@
-from time import sleep
 import math
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from sqlalchemy import Column, String
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 
 from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
 
@@ -21,7 +23,6 @@ def indeed_function(session):
 
     driver = webdriver.Chrome()
     driver.get("https://pl.indeed.com/jobs?q=Python&l=Warszawa%2C+mazowieckie&radius=50&fromage=14&vjk=ebe1be7f38146e50")
-    sleep(1)
     driver = accept_cookies(driver)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
@@ -99,35 +100,44 @@ def next_page(driver):
     try:
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
         try:
-            next_site_button = driver.find_element(By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[7]/a")
+            next_site_button = WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[7]/a"))
+            )
         except:
-            # Case first site
-            next_site_button = driver.find_element(By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[6]/a")
-        sleep(1)
+            # Case for first & last site           
+            next_site_button = WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[6]/a"))
+            )
         next_site_button.click()
         return driver
         
     except:
         # Decline login and newsletter
-        loggin = driver.find_element(By.XPATH, '//*[@id="google-Only-Modal"]/div/div[1]/button')
-        sleep(1)
+        loggin = WebDriverWait(driver, 2).until(
+            EC.element_to_be_clickable((By.XPATH, '//*[@id="google-Only-Modal"]/div/div[1]/button'))
+        )
         loggin.click()
-        newsletter = driver.find_element(By.XPATH, '//*[@id="mosaic-desktopserpjapopup"]/div[1]/button')
-        sleep(1)
+        newsletter = WebDriverWait(driver, 2).until(
+            EC.element_to_be_clickable((By.XPATH, '//*[@id="mosaic-desktopserpjapopup"]/div[1]/button'))
+        )
         newsletter.click()
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
         try:
-            next_site_button = driver.find_element(By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[7]/a")
+            next_site_button = WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[7]/a"))
+            )        
         except:
-            next_site_button = driver.find_element(By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[6]/a")
-        sleep(1)
+            # Case for first & last site           
+            next_site_button = WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[6]/a"))
+            )
         next_site_button.click()
-        sleep(1)
         return driver
 
     
 def accept_cookies(driver):
-    cookie = driver.find_element(By.XPATH, '//*[@id="onetrust-reject-all-handler"]')
-    sleep(1)
+    cookie = WebDriverWait(driver, 2).until(
+        EC.element_to_be_clickable((By.XPATH, '//*[@id="onetrust-reject-all-handler"]'))
+    )
     cookie.click()
     return driver

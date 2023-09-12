@@ -1,10 +1,12 @@
-import math
 from time import sleep
+import math
 from datetime import date, timedelta
 from bs4 import BeautifulSoup
 from sqlalchemy import Column, String
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
 
@@ -23,8 +25,6 @@ def linkedin_function(session):
     driver.get(
         "https://www.linkedin.com/jobs/search/?currentJobId=3630027367&f_E=1%2C2&f_TPR=r604800&geoId=90009828&keywords=Python&location=Warszawa%20i%20okolice&refresh=true&sortBy=R"
     )
-    sleep(2)
-    
     # Scrolling part
     number_of_offert_text = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/h1/span[1]").text
     number_of_offert = find_digit(number_of_offert_text)
@@ -32,25 +32,32 @@ def linkedin_function(session):
         if number_of_offert < 160:
             scrolling_count = math.ceil(number_of_offert / 30) - 1
         else:
-            scrolling_count = 6
+            scrolling_count = 7
         for _ in range(scrolling_count):
             driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
-            sleep(2)
+            sleep(1)
         # Button-refreshment part
         if number_of_offert > 160:
-            number_of_pages = math.ceil((number_of_offert - 160) / 25) - 1
+            number_of_pages = math.ceil((number_of_offert - 160) / 25)+1
+            element = WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.XPATH, '/html/body/div[6]/button'))
+            )
+            element.click()
+            element = WebDriverWait(driver, 2).until(
+                EC.element_to_be_clickable((By.XPATH, '/html/body/div[5]/button'))
+            )
+            element.click()
             for page in range(number_of_pages):
                 try:
                     driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
-                    element = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/section[2]/button")
-                    sleep(1)
+                    element = WebDriverWait(driver, 2).until(
+                        EC.element_to_be_clickable((By.XPATH, '/html/body/div[3]/div/main/section[2]/button'))
+                    )
                     element.click()
-                    sleep(1)
+                    sleep(2)
                 except:
                     continue
             driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
-            sleep(2)
-    
     # Scrapping full-page
     html = driver.page_source
     driver.close()
@@ -60,8 +67,6 @@ def linkedin_function(session):
     for result in results:
         offert_id = find_digit(result.get("data-entity-urn"))
         link = (result.find("a", {"class":"base-card__full-link"}).get("href")).strip()
-
-        
         # Checking if offer already exist in database
         offer_exist_in_db = (
             session.query(Linkedin).filter(Linkedin.offert_id == offert_id).count()

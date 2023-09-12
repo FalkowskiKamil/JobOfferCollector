@@ -1,6 +1,4 @@
 from datetime import datetime
-from time import sleep
-import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
@@ -21,7 +19,6 @@ def pracodajnia_function(session):
     driver.get(
         "https://pracodajnia.pl/index.php?list=job&search=python&title=on&description=on"
     )
-    sleep(2)
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     results = soup.find_all("div", {"class":"listing_list mini_rectangle_rounded"})
