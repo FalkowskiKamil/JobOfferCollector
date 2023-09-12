@@ -1,7 +1,10 @@
 import time
 import os
+
 from sqlalchemy import inspect, func
 from sqlalchemy.orm import sessionmaker
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 from collection_of_website.adzuna_module import adzuna_function
 from collection_of_website.bulldog_module import bulldog_function
@@ -21,7 +24,6 @@ from collection_of_website.szukampracy_module import szukampracy_function
 from collection_of_website.talent_module import talent_function
 from collection_of_website.theprotocol_module import theprotocol_function
 from collection_of_website.base_module import Base, engine, BaseSite, NewsOffert
-
 
 def collect_offert(args=None):
     start = time.perf_counter()
@@ -57,34 +59,36 @@ def collect_offert(args=None):
             for record in records_to_delete:
                 session.delete(record)
         session.commit()
-
-    #adzuna_function(session)
-    #bulldog_function(session)
-    #glassdor_function(session)
-    #indeed_function(session)
-    #infopraca_function(session)
-    #jobspl_function(session)
-    #just_join_function(session)
-
-    linkedin_function(session)
-    
-    #nofluffjobs_function(session)
-    #olx_function(session)
-    #pracodajnia_function(session)
-    #pracuj_function(session)
-    #rocketjobs_function(session)
-    #solid_jobs_function(session)
-    #szukampracy_function(session)
-    #talent_function(session)
-    #theprotocol_function(session)
-
+        
+    options = Options()
+    options.add_argument('--headless=new')
+    driver = webdriver.Chrome(options=options)
+    # Unordered linkedin to avoid tracking
+    linkedin_function(session, driver)
+    adzuna_function(session)
+    bulldog_function(session, driver)
+    glassdor_function(session, driver)
+    indeed_function(session, driver)
+    infopraca_function(session, driver)
+    jobspl_function(session)
+    just_join_function(session, driver)
+    nofluffjobs_function(session)
+    olx_function(session, driver)
+    pracodajnia_function(session, driver)
+    pracuj_function(session, driver)
+    rocketjobs_function(session)
+    solid_jobs_function(session, driver)
+    szukampracy_function(session)
+    talent_function(session)
+    theprotocol_function(session)
+    driver.close()
     # Saving offert
     session.commit()
     session.close()
 
     # Clearing terminal
     clear = lambda: os.system("cls" if os.name == "nt" else "clear")
-    # clear()
+    #clear()
 
     # Summary of scrapping
     source_counts = (
@@ -93,7 +97,9 @@ def collect_offert(args=None):
         .all()
     )
 
+    """
     for source, count in source_counts:
         print(f"{count}x{source}")
+    """
     finish = time.perf_counter()
-    print(f"{finish - start} czas")
+    print(finish-start)

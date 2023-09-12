@@ -14,11 +14,14 @@ def szukampracy_function(session):
     szukampracy = Szukampracy()
     szukampracy.decrement_deadline(session)
 
-    # Scrapping data
+    # Scrapping offert
     html = requests.get("https://szukampracy.pl/ogloszenie/strona/1?SearchForm%5Bstanowisko%5D=Python&SearchForm%5Bregion%5D%5B0%5D=3&SearchForm%5Bkategorie%5D=")
     soup = BeautifulSoup(html.content, "html.parser")
+    root_link = "https://szukampracy.pl"
     ul_list = soup.find_all("ul",{"class":"offer-list"})
     results = ul_list[1].find_all("li",{"class":"ad-on-list"})
+
+    # Iterating over pages
     number_of_pages_container = soup.find("ul",{"class":"pagination"})
     number_of_pages = len(number_of_pages_container.find_all("li"))-2
     for page in range(2, number_of_pages+2):
@@ -26,19 +29,15 @@ def szukampracy_function(session):
         soup = BeautifulSoup(html.content, "html.parser")
         ul_list = soup.find_all("ul",{"class":"offer-list"})
         results += ul_list[0].find_all("li",{"class":"ad-on-list"})
-        break
 
-    root_link = "https://szukampracy.pl"
+    # Collecting details
     for result in results:          
-        
         box = result.find("span",{"class":"description nun-sb"})
         link = root_link + box.find("a").get("href")
+        
         # Checking if offer already exist in database
-        offer_exist_in_db = (
-            session.query(Szukampracy).filter(Szukampracy.link == link).count()
-        )
-        if offer_exist_in_db > 0:
-            continue
+        offer_exist_in_db = (session.query(Szukampracy).filter(Szukampracy.link == link).count())
+        if offer_exist_in_db > 0: continue
         else:
             company = result.find("a").get("title")
             title = box.find("h3").get_text()
@@ -56,8 +55,7 @@ def szukampracy_function(session):
                 location=location,
                 wages=wages,
                 link=link,
-                remote=remote,
-            )
+                remote=remote)
 
             new_offer = NewsOffert(
                 time=time,
@@ -67,7 +65,6 @@ def szukampracy_function(session):
                 wages=wages,
                 link=link,
                 remote=remote,
-                source="SzukamPracy",
-            )
+                source="SzukamPracy")
             session.add_all([new_szukam_pracy, new_offer])
 

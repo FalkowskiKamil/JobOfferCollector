@@ -17,25 +17,26 @@ def jobspl_function(session):
     # Scrapping data
     html = requests.get("https://www.jobs.pl/oferty/python;k")
     soup = BeautifulSoup(html.content, "html.parser")
-    results = soup.find_all("div",{"class":"offer-border offer"})
+    results = soup.find_all("div", {"class":"offer-border offer"})
     root_link = "https://www.jobs.pl/"
+
+    # Collecting details
     for result in results:
-        link = root_link + result.find("div",{"class":"offer-title"}).find("a").get("href")
+        link = root_link + result.find("div", {"class":"offer-title"}).find("a").get("href")
+
         # Checking if offer already exist in database
-        offer_exist_in_db = (
-            session.query(JobsPl).filter(JobsPl.link == link).count()
-        )
-        if offer_exist_in_db > 0:
-            continue
+        offer_exist_in_db = (session.query(JobsPl).filter(JobsPl.link == link).count())
+        if offer_exist_in_db > 0: continue
         else:
-            title = result.find("div",{"class":"offer-title"}).find("a").get_text().strip()
-            company = result.find("p",{"class":"offer-employer"}).find("a").get_text()
-            time_to_convert = result.find("p",{"class":"offer-date"}).get_text().strip()
-            time = datetime.strptime(time_to_convert, '%d.%m.%Y').date()
-            location = result.find("p",{"class":"offer-location"}).find("a").get_text()
+            title = result.find("div", {"class":"offer-title"}).find("a").get_text().strip()
+            company = result.find("p", {"class":"offer-employer"}).find("a").get_text()
+            time_to_convert = result.find("p", {"class":"offer-date"}).get_text().strip()
+            time = datetime.strptime(time_to_convert, "%d.%m.%Y").date()
+            location = result.find("p", {"class":"offer-location"}).find("a").get_text()
             remote = False
             wages = "NULL"
-            # Saving details
+            
+            # Saving data
             new_jobspl = JobsPl(
                 time=time,
                 offer_title=title,
@@ -43,8 +44,7 @@ def jobspl_function(session):
                 location=location,
                 wages=wages,
                 link=link,
-                remote=remote,
-            )
+                remote=remote)
 
             new_offer = NewsOffert(
                 time=time,
@@ -54,6 +54,5 @@ def jobspl_function(session):
                 wages=wages,
                 link=link,
                 remote=remote,
-                source="Jobspl",
-            )
+                source="JobsPl")
             session.add_all([new_jobspl, new_offer])
