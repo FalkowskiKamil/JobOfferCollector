@@ -1,6 +1,7 @@
 from time import sleep
 import math
 from datetime import date, timedelta
+
 from bs4 import BeautifulSoup
 from sqlalchemy import Column, String
 from selenium.webdriver.common.by import By
@@ -91,22 +92,18 @@ def linkedin_function(session, driver):
 
             # Saving data
             new_linked = Linkedin(
-                    offert_id = offert_id,
-                    time=time,
-                    offer_title=title,
-                    company_name=company,
-                    location=location,
-                    wages="NULL",
-                    link=link,
-                    remote=False)
+                offert_id = offert_id,
+                time=time,
+                offer_title=title,
+                company_name=company,
+                location=location,
+                link=link,)
             
             new_offer = NewsOffert(
                 time=time,
                 offer_title=title,
                 company_name=company,
                 location=location,
-                wages="NULL",
                 link=link,
-                remote=False,
                 source="Linkedin")
             session.add_all([new_linked, new_offer])

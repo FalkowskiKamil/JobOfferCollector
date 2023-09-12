@@ -1,4 +1,5 @@
 from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -33,8 +34,6 @@ def jobspl_function(session):
             time_to_convert = result.find("p", {"class":"offer-date"}).get_text().strip()
             time = datetime.strptime(time_to_convert, "%d.%m.%Y").date()
             location = result.find("p", {"class":"offer-location"}).find("a").get_text()
-            remote = False
-            wages = "NULL"
             
             # Saving data
             new_jobspl = JobsPl(
@@ -42,17 +41,13 @@ def jobspl_function(session):
                 offer_title=title,
                 company_name=company,
                 location=location,
-                wages=wages,
-                link=link,
-                remote=remote)
+                link=link)
 
             new_offer = NewsOffert(
                 time=time,
                 offer_title=title,
                 company_name=company,
                 location=location,
-                wages=wages,
                 link=link,
-                remote=remote,
                 source="JobsPl")
             session.add_all([new_jobspl, new_offer])

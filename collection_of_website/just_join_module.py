@@ -1,5 +1,7 @@
 from datetime import date, timedelta
+
 from bs4 import BeautifulSoup
+
 from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
 
 
@@ -57,6 +59,7 @@ def just_join_function(session, driver):
                 wages=wages,
                 link=link,
                 remote=remote)
+            
             new_offer = NewsOffert(
                 time=time,
                 offer_title=title,

@@ -1,5 +1,6 @@
 import math
 from datetime import date, timedelta
+
 from bs4 import BeautifulSoup
 
 from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
@@ -54,8 +55,6 @@ def infopraca_function(session, driver):
                 location = location[0].get_text().strip()
             else:
                 location = "NULL"
-            wages = "NULL"
-            remote = False
             
             # Saving data
             new_infopraca = Infopraca(
@@ -63,18 +62,14 @@ def infopraca_function(session, driver):
                 offer_title=title,
                 company_name=company,
                 location=location,
-                wages=wages,
-                link=link,
-                remote=remote)
+                link=link)
 
             new_offer = NewsOffert(
                 time=time,
                 offer_title=title,
                 company_name=company,
                 location=location,
-                wages=wages,
                 link=link,
-                remote=remote,
                 source="infopraca")
             session.add_all([new_infopraca, new_offer])
     

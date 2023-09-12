@@ -1,5 +1,6 @@
 import math
 import requests
+
 from bs4 import BeautifulSoup
 
 from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
@@ -40,10 +41,8 @@ def adzuna_function(session):
         if offer_exist_in_db > 0: continue
         else:
             title = result.find("a", {"class":"text-base md:text-xl lg:text-2xl text-adzuna-green-500 hover:underline"}).get_text().strip()
-            try:
-                company = result.find("div", {"class":"ui-company"}).get_text()
-            except:
-                company = "NULL"
+            company = result.find("div", {"class":"ui-company"})
+            if company: company = company.get_text()
             location = result.find("div", {"ui-location text-adzuna-gray-900"}).get_text()
             try:
                 wages = result.find("div", {"class":"ui-salary flex flex-wrap gap-x-2"})

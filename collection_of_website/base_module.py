@@ -1,5 +1,6 @@
 import re
 from datetime import date, datetime
+
 from sqlalchemy import Column, Integer, String, Boolean, Date, create_engine, update
 from sqlalchemy.orm import declarative_base, Session
 
@@ -14,13 +15,13 @@ class BaseSite(Base):
     id = Column(Integer, primary_key=True)
     time = Column(Date, default=date.today())
     offer_title = Column(String)
-    company_name = Column(String)
-    location = Column(String)
-    wages = Column(String, default="NULL")
-    link = Column(String, unique=True)
-    remote = Column(Boolean, default=False)
-    applicated = Column(Boolean, default=False)
-    days_until_deadline = Column(Integer, default=30)
+    company_name = Column(String, default = "NULL")
+    location = Column(String, default = "NULL")
+    wages = Column(String, default = "NULL")
+    link = Column(String, unique = True)
+    remote = Column(Boolean, default = False)
+    applicated = Column(Boolean, default = False)
+    days_until_deadline = Column(Integer, default = 30)
 
     @classmethod
     def decrement_deadline(cls, session: Session):

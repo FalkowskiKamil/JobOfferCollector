@@ -1,4 +1,3 @@
-import time
 import os
 
 from sqlalchemy import inspect, func
@@ -26,21 +25,19 @@ from collection_of_website.theprotocol_module import theprotocol_function
 from collection_of_website.base_module import Base, engine, BaseSite, NewsOffert
 
 def collect_offert(args=None):
-    start = time.perf_counter()
+
+    # Init session
     inspector = inspect(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
-    # Checking db
 
+    # Checking db
     if not inspector.has_table(NewsOffert.__tablename__):
         Base.metadata.create_all(engine)
 
     elif args == "last":
         source_counts = (
-            session.query(NewsOffert.source, func.count(NewsOffert.source))
-            .group_by(NewsOffert.source)
-            .all()
-        )
+            session.query(NewsOffert.source, func.count(NewsOffert.source)).group_by(NewsOffert.source).all())
         for source, count in source_counts:
             print(f"{count}x{source}")
         return
@@ -51,20 +48,18 @@ def collect_offert(args=None):
         session.query(NewsOffert).delete()
         # Deleting data oldest than 30 days
         for table_class in BaseSite.__subclasses__():
-            records_to_delete = (
-                session.query(table_class)
-                .filter(table_class.days_until_deadline == 0)
-                .all()
-            )
+            records_to_delete = (session.query(table_class).filter(table_class.days_until_deadline == 0).all())
             for record in records_to_delete:
                 session.delete(record)
         session.commit()
         
+    # Init selenium sesion
     options = Options()
     options.add_argument('--headless=new')
     driver = webdriver.Chrome(options=options)
-    # Unordered linkedin to avoid tracking
-    linkedin_function(session, driver)
+
+    #Scraping over sites
+    linkedin_function(session, driver) # Unordered linkedin to avoid tracking
     adzuna_function(session)
     bulldog_function(session, driver)
     glassdor_function(session, driver)
@@ -82,24 +77,16 @@ def collect_offert(args=None):
     talent_function(session)
     theprotocol_function(session)
     driver.close()
-    # Saving offert
+
+    # Saving results
     session.commit()
     session.close()
 
     # Clearing terminal
     clear = lambda: os.system("cls" if os.name == "nt" else "clear")
-    #clear()
+    clear()
 
     # Summary of scrapping
-    source_counts = (
-        session.query(NewsOffert.source, func.count(NewsOffert.source))
-        .group_by(NewsOffert.source)
-        .all()
-    )
-
-    """
+    source_counts = (session.query(NewsOffert.source, func.count(NewsOffert.source)).group_by(NewsOffert.source).all())
     for source, count in source_counts:
         print(f"{count}x{source}")
-    """
-    finish = time.perf_counter()
-    print(finish-start)

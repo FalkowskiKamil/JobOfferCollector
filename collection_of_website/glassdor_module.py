@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+
 from bs4 import BeautifulSoup
 from sqlalchemy import Column, String
 from selenium.webdriver.common.by import By
@@ -30,7 +31,7 @@ def glassdor_function(session, driver):
     # Iterate over pages
     number_of_pages_text = soup.find("div", {"class": "paginationFooter"}).get_text()
     number_of_pages = int(number_of_pages_text[-2:].strip())-1
-    for page in range(number_of_pages - 1):
+    for page in range(number_of_pages):
         driver = next_page(driver)
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
@@ -58,7 +59,6 @@ def glassdor_function(session, driver):
                 wages = result.find("div", {"class": "salary-estimate"}).get_text()
             except:
                 wages = "NULL"
-            remote = False
 
             # Saving data
             new_glassdor = Glassdor(
@@ -68,8 +68,7 @@ def glassdor_function(session, driver):
                 company_name=company,
                 location=location,
                 wages=wages,
-                link=link,
-                remote=remote)
+                link=link)
 
             new_offer = NewsOffert(
                 time=time,
@@ -78,7 +77,6 @@ def glassdor_function(session, driver):
                 location=location,
                 wages=wages,
                 link=link,
-                remote=remote,
                 source="Glassdor")
             session.add_all([new_glassdor, new_offer])
 

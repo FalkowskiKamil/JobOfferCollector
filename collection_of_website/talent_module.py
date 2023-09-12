@@ -34,7 +34,6 @@ def talent_function(session):
                 wages = result.find("div", {"class":"card__job-badge-wrap card__job-badge-salary"}).get_text()
             except:
                 wages = "NULL"
-            remote = False
 
             # Saving details
             new_talent = Talent(
@@ -42,8 +41,7 @@ def talent_function(session):
                 company_name=company,
                 location=location,
                 wages=wages,
-                link=link,
-                remote=remote)
+                link=link)
 
             new_offer = NewsOffert(
                 offer_title=title,
@@ -51,6 +49,5 @@ def talent_function(session):
                 location=location,
                 wages=wages,
                 link=link,
-                remote=remote,
                 source="Talent")
             session.add_all([new_talent, new_offer])

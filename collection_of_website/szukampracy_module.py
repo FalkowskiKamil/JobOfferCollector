@@ -1,6 +1,7 @@
+from datetime import datetime
+
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
 
 from collection_of_website.base_module import BaseSite, NewsOffert
 
@@ -44,8 +45,6 @@ def szukampracy_function(session):
             time_raw = box.find("span",{"class":"nun-b"}).get_text()
             time = datetime.strptime(time_raw, '%d-%m-%Y')
             location = box.find("a", {"class":"nun-b"}).get_text().strip().split()[0]
-            wages = "NULL"
-            remote = False
             
             # Saving details
             new_szukam_pracy = Szukampracy(
@@ -53,18 +52,14 @@ def szukampracy_function(session):
                 offer_title=title,
                 company_name=company,
                 location=location,
-                wages=wages,
-                link=link,
-                remote=remote)
+                link=link)
 
             new_offer = NewsOffert(
                 time=time,
                 offer_title=title,
                 company_name=company,
                 location=location,
-                wages=wages,
                 link=link,
-                remote=remote,
                 source="SzukamPracy")
             session.add_all([new_szukam_pracy, new_offer])
 

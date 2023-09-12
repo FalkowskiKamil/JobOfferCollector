@@ -48,6 +48,7 @@ def bulldog_function(session, driver):
                 wages=wages,
                 link=link,
                 remote=remote)
+            
             new_offert = NewsOffert(
                 offer_title=title,
                 company_name=company,

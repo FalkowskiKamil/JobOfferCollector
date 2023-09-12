@@ -1,5 +1,6 @@
 import math
 from datetime import date, timedelta
+
 from bs4 import BeautifulSoup
 from sqlalchemy import Column, String
 from selenium.webdriver.common.by import By

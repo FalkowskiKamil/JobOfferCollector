@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from bs4 import BeautifulSoup
 
 from collection_of_website.base_module import BaseSite, NewsOffert
@@ -32,27 +33,18 @@ def pracodajnia_function(session, driver):
             time = datetime.strptime(time_to_convert, "%Y-%m-%d").date()
             title = result.find("td", {"class":"item ellipsis"}).find("a").get_text().strip().split("\t")[0]
             wages = result.find("span", {"style":"float:right"}).get_text()
-            company = "NULL"
-            location = "NULL"
-            remote = True
 
             # Saving data
             new_pracodajnia = Pracodajnia(
                 time=time,
                 offer_title=title,
-                company_name=company,
-                location=location,
                 wages=wages,
-                link=link,
-                remote=remote)
+                link=link)
 
             new_offer = NewsOffert(
                 time=time,
                 offer_title=title,
-                company_name=company,
-                location=location,
                 wages=wages,
                 link=link,
-                remote=remote,
                 source="Pracodajnia")
             session.add_all([new_pracodajnia, new_offer])
