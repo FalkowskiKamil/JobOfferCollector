@@ -33,7 +33,7 @@ def talent_function(session):
             try:
                 wages = result.find("div", {"class":"card__job-badge-wrap card__job-badge-salary"}).get_text()
             except:
-                wages = "NULL"
+                wages = None
 
             # Saving details
             new_talent = Talent(

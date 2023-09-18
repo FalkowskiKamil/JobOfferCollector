@@ -34,7 +34,7 @@ def theprotocol_function(session):
             try: 
                 wages = result.find("span", {"class":"boldText_b1wsb650"}).get_text()
             except:
-                wages = "NULL"
+                wages = None
             remote = result.find_all("div", {"class":"rootClass_rpqnjlt body1_b1gato5c initial_i1m6fsnc textClass_t1rna8so"})[-2].get_text()
             if remote == "zdalna":
                 remote = True

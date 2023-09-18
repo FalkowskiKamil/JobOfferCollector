@@ -65,12 +65,12 @@ def olx_function(session, driver):
                 else:
                     time = date_translate(time_tag.get_text())
                 title = result.find("h6", {"class":"css-1jmx98l"}).get_text()
-                company = "NULL"
+                company = None
                 location = result.find("span", {"class":"css-d5w927"}).get_text()
                 try:
                     result.find("p", {"class":"css-1hp12oq"}).get_text()
                 except:
-                    wages = "NULL"
+                    wages = None
                 
                 #Searching of remote-avaibility
                 remote = False

@@ -60,7 +60,7 @@ def indeed_function(session, driver):
             title = result.find("h2", {"class":"jobTitle"}).find("span").get("title")
             company = result.find("span", {"class":"companyName"}).get_text()
             location = result.find("div", {"class":"companyLocation"}).get_text()
-            wages = "NULL"
+            wages = None
             remote = False
             if location:
                 if "zdal" in location:

@@ -54,7 +54,7 @@ def infopraca_function(session, driver):
             if len(location)>3:
                 location = location[0].get_text().strip()
             else:
-                location = "NULL"
+                location = None
             
             # Saving data
             new_infopraca = Infopraca(

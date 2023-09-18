@@ -22,6 +22,7 @@ from collection_of_website.solid_jobs_module import solid_jobs_function
 from collection_of_website.szukampracy_module import szukampracy_function
 from collection_of_website.talent_module import talent_function
 from collection_of_website.theprotocol_module import theprotocol_function
+from collection_of_website.ziprecruiter_module import ziprecruiter_function
 from collection_of_website.base_module import Base, engine, BaseSite, NewsOffert
 
 def collect_offert(args=None):
@@ -53,12 +54,20 @@ def collect_offert(args=None):
                 session.delete(record)
         session.commit()
         
-    # Init selenium sesion
+    # Init selenium sesion headless
+    
     options = Options()
     options.add_argument('--headless=new')
     driver = webdriver.Chrome(options=options)
-
+    
+    # Selenium with window
+    """
+    options = webdriver.ChromeOptions()
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
+    driver = webdriver.Chrome(options=options)
+    """
     #Scraping over sites
+    """
     linkedin_function(session, driver) # Unordered linkedin to avoid tracking
     adzuna_function(session)
     bulldog_function(session, driver)
@@ -76,6 +85,8 @@ def collect_offert(args=None):
     szukampracy_function(session)
     talent_function(session)
     theprotocol_function(session)
+    ziprecruiter_function(session, driver)
+    """
     driver.close()
 
     # Saving results
@@ -84,7 +95,7 @@ def collect_offert(args=None):
 
     # Clearing terminal
     clear = lambda: os.system("cls" if os.name == "nt" else "clear")
-    clear()
+    #clear()
 
     # Summary of scrapping
     source_counts = (session.query(NewsOffert.source, func.count(NewsOffert.source)).group_by(NewsOffert.source).all())

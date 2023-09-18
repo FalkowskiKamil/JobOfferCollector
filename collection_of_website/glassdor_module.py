@@ -58,7 +58,7 @@ def glassdor_function(session, driver):
             try:
                 wages = result.find("div", {"class": "salary-estimate"}).get_text()
             except:
-                wages = "NULL"
+                wages = None
 
             # Saving data
             new_glassdor = Glassdor(

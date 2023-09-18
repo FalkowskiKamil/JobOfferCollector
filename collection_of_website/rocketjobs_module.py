@@ -33,7 +33,7 @@ def rocketjobs_function(session):
                 wages = result.find("div", {"class":"css-lz8wxo"}).find_all("span")
                 wages = wages[0].get_text() + " - " + wages[1].get_text() + " " + wages[2].get_text()
             except:
-                wages = "NULL"
+                wages = None
             remote = result.find("div", {"class":"css-12973y2"}).get_text() == "Zdalnie"
 
             # Saving details
