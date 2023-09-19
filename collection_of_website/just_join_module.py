@@ -1,6 +1,11 @@
 from datetime import date, timedelta
 
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
 
@@ -9,10 +14,16 @@ class Just_join(BaseSite):
     __tablename__ = "Just Join"
 
 
-def just_join_function(session, driver):
+def just_join_function(session):
     # Decrement deadline
     just_join = Just_join()
     just_join.decrement_deadline(session)
+
+    # Init Selenium Driver
+    options = Options()
+    options.add_argument('--headless=new')
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
+    driver = webdriver.Chrome(options=options)
 
     # Scrapping data
     driver.get("https://justjoin.it/all/python/junior")
@@ -20,7 +31,7 @@ def just_join_function(session, driver):
     soup = BeautifulSoup(html, "html.parser")
     results = soup.find_all("div", {"class": "jss239 jss236"})
     root_site = "https://justjoin.it"
-
+    driver.close()
 
     # Collecting details
     for result in results:

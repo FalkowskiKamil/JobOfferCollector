@@ -3,7 +3,7 @@ import requests
 
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
+from collection_of_website.base_module import BaseSite, NewsOffert, find_digit, title_checker
 
 
 class Adzuna(BaseSite):
@@ -41,6 +41,9 @@ def adzuna_function(session):
         if offer_exist_in_db > 0: continue
         else:
             title = result.find("a", {"class":"text-base md:text-xl lg:text-2xl text-adzuna-green-500 hover:underline"}).get_text().strip()
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             company = result.find("div", {"class":"ui-company"})
             if company: company = company.get_text()
             location = result.find("div", {"ui-location text-adzuna-gray-900"}).get_text()

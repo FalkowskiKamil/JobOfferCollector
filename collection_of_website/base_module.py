@@ -61,3 +61,8 @@ def find_digit(text):
     pattern = r"\d+"
     digit = int(re.findall(pattern, text)[0])
     return digit
+
+def title_checker(title):
+    keywords = ["account", "german", "french", "customer", "norwegian", "hr", "finnish", "arabic", "armenian", "danish", "kazakh", "romanian", "turkish", "ukrainian", ".net", "java", "italian", "dutch", "php", "helpdesk", 'oracle', 'manager', 'cloud', 'mid', 'mid/senior', 'senior', 'android', 'angular', 'react', 'vue.js', 'golang', '']
+    if any(keyword in title.lower() for keyword in keywords):                
+        return True

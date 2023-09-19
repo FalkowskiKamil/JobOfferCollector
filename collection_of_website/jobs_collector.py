@@ -1,16 +1,15 @@
 import os
+import inspect
+import sys
 
 from sqlalchemy import inspect, func
 from sqlalchemy.orm import sessionmaker
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 
 from collection_of_website.adzuna_module import adzuna_function
 from collection_of_website.bulldog_module import bulldog_function
 from collection_of_website.glassdor_module import glassdor_function
 from collection_of_website.indeed_module import indeed_function
 from collection_of_website.infopraca_module import infopraca_function
-from collection_of_website.jobspl_module import jobspl_function
 from collection_of_website.just_join_module import just_join_function
 from collection_of_website.linkedin_module import linkedin_function
 from collection_of_website.nofluffjobs_module import nofluffjobs_function
@@ -54,50 +53,71 @@ def collect_offert(args=None):
                 session.delete(record)
         session.commit()
         
-    # Init selenium sesion headless
-    
-    options = Options()
-    options.add_argument('--headless=new')
-    driver = webdriver.Chrome(options=options)
-    
-    # Selenium with window
-    """
-    options = webdriver.ChromeOptions()
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
-    driver = webdriver.Chrome(options=options)
-    """
-    #Scraping over sites
-    """
-    linkedin_function(session, driver) # Unordered linkedin to avoid tracking
-    adzuna_function(session)
-    bulldog_function(session, driver)
-    glassdor_function(session, driver)
-    indeed_function(session, driver)
-    infopraca_function(session, driver)
-    jobspl_function(session)
-    just_join_function(session, driver)
-    nofluffjobs_function(session)
-    olx_function(session, driver)
-    pracodajnia_function(session, driver)
-    pracuj_function(session, driver)
-    rocketjobs_function(session)
-    solid_jobs_function(session, driver)
-    szukampracy_function(session)
-    talent_function(session)
-    theprotocol_function(session)
-    ziprecruiter_function(session, driver)
-    """
-    driver.close()
 
+    #Scraping over sites
+    index = 0
+    try:adzuna_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:bulldog_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:glassdor_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:indeed_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:infopraca_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:just_join_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:linkedin_function(session) 
+    except:print("oops #" + str(index))
+    index += 1
+    try:nofluffjobs_function(session)
+    except: print("oops #" + str(index))
+    index = 1
+    try:olx_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:pracodajnia_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:pracuj_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:rocketjobs_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:solid_jobs_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:szukampracy_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:talent_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:theprotocol_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    try:ziprecruiter_function(session)
+    except: print("oops #" + str(index))
+    index += 1
+    
     # Saving results
     session.commit()
     session.close()
 
     # Clearing terminal
     clear = lambda: os.system("cls" if os.name == "nt" else "clear")
-    #clear()
+    clear()
 
     # Summary of scrapping
     source_counts = (session.query(NewsOffert.source, func.count(NewsOffert.source)).group_by(NewsOffert.source).all())
+    print("New offert:")
     for source, count in source_counts:
-        print(f"{count}x{source}")
+        print(f"{count} x {source}")

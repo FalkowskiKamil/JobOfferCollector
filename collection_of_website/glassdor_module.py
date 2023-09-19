@@ -2,11 +2,13 @@ from datetime import date, timedelta
 
 from bs4 import BeautifulSoup
 from sqlalchemy import Column, String
+from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
+from collection_of_website.base_module import BaseSite, NewsOffert, find_digit, title_checker
 
 
 class Glassdor(BaseSite):
@@ -14,10 +16,16 @@ class Glassdor(BaseSite):
     offert_id = Column(String)
 
 
-def glassdor_function(session, driver):
+def glassdor_function(session):
     # Decrement deadline
     glassdor = Glassdor()
     glassdor.decrement_deadline(session)
+
+    # Init Selenium Driver
+    options = Options()
+    options.add_argument('--headless=new')
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
+    driver = webdriver.Chrome(options=options)
 
     # Scrapping offert
     driver.get("https://www.glassdoor.com/Job/warsaw-junior-python-jobs-SRCH_IL.0,6_IC3094484_KO7,20.htm")
@@ -35,7 +43,9 @@ def glassdor_function(session, driver):
         driver = next_page(driver)
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
-        results += soup.find_all("a", {"class": "d-flex justify-content-between p-std jobCard"})
+        new = soup.find_all("a", {"class": "d-flex justify-content-between p-std jobCard"})
+        results += new
+    driver.close()
 
     # Collecting details
     for result in results:
@@ -46,10 +56,14 @@ def glassdor_function(session, driver):
         offer_exist_in_db = (session.query(Glassdor).filter(Glassdor.offert_id == id).count())
         if offer_exist_in_db > 0: continue
         else:
+            
             link = root_link + result.get("href")
             days_ago = find_digit(result.find("div", {"class": "d-flex align-items-end ml-xsm listing-age"}).get_text())
             time = date.today() - timedelta(days=days_ago)
             title = result.find("div", {"class": "job-title"}).get_text()
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             try:
                 company = result.find("div", {"class": "job-search-8wag7x"}).get_text()
             except:
@@ -78,6 +92,7 @@ def glassdor_function(session, driver):
                 wages=wages,
                 link=link,
                 source="Glassdor")
+            
             session.add_all([new_glassdor, new_offer])
 
 

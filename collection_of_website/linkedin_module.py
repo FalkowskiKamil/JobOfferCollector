@@ -4,22 +4,30 @@ from datetime import date, timedelta
 
 from bs4 import BeautifulSoup
 from sqlalchemy import Column, String
+from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
+from collection_of_website.base_module import BaseSite, NewsOffert, find_digit, title_checker
 
 
 class Linkedin(BaseSite):
     __tablename__ = "Linkedin"
     offert_id = Column(String)
 
-def linkedin_function(session, driver):
+def linkedin_function(session):
     # Decrement deadline
     linkedin = Linkedin()
     linkedin.decrement_deadline(session)
     
+    # Init Selenium Driver
+    options = Options()
+    options.add_argument('--headless=new')
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
+    driver = webdriver.Chrome(options=options)
+
     # Scrapping offert
     driver.get("https://www.linkedin.com/jobs/search/?currentJobId=3630027367&f_E=1%2C2&f_TPR=r604800&geoId=90009828&keywords=Python&location=Warszawa%20i%20okolice&refresh=true&sortBy=R")
     sleep(1)
@@ -69,7 +77,8 @@ def linkedin_function(session, driver):
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     results = soup.find_all("div", {"class":"base-card relative w-full hover:no-underline focus:no-underline base-card--link base-search-card base-search-card--link job-search-card"})
-
+    driver.close()
+    
     # Collecting details
     for result in results:
         offert_id = find_digit(result.get("data-entity-urn"))
@@ -81,6 +90,9 @@ def linkedin_function(session, driver):
         else:
             company = (result.find("h4",{"class":"base-search-card__subtitle"}).get_text()).strip()
             title = (result.find("h3", {"class":"base-search-card__title"}).get_text()).strip()
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             location = (result.find("span",{"class":"job-search-card__location"}).get_text()).strip()
 
             # Transform date
