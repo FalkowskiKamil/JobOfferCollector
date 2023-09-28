@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
+from collection_of_website.base_module import BaseSite, NewsOffert, find_digit, title_checker
 
 
 class Just_join(BaseSite):
@@ -26,17 +26,25 @@ def just_join_function(session):
     driver = webdriver.Chrome(options=options)
 
     # Scrapping data
-    driver.get("https://justjoin.it/all/python/junior")
+    driver.get("https://justjoin.it/warszawa/python/experience-level_junior")
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
-    results = soup.find_all("div", {"class": "jss239 jss236"})
+    results = soup.find_all("div", {"class": "css-gfqoze"})
+    
+    driver.get("https://justjoin.it/all-locations/python/experience-level_junior/remote_yes")
+    soup = BeautifulSoup(html, "html.parser")
+    results += soup.find_all("div", {"class": "css-gfqoze"})
     root_site = "https://justjoin.it"
-    driver.close()
 
+    driver.close()
+    link_list = []
     # Collecting details
     for result in results:
-        link = root_site + result.find_parent("div").find("a")["href"]
-
+        link = root_site + result.find("a", {"class":"css-4lqp8g"})["href"]
+        if link in link_list:
+            continue
+        else:
+            link_list.append(list)
         # Checking if offert already exist in database
         offer_exist_in_db = (
             session.query(Just_join).filter(Just_join.link == link).count()
@@ -52,6 +60,10 @@ def just_join_function(session):
                 days_ago = find_digit(time)
                 time = date.today() - timedelta(days=days_ago)
             title = result.find("div", {"class": "jss246"}).get_text()
+            
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             company = result.find("div", {"class": "jss252"}).get_text()
             location = result.find("div", {"class": "jss253"}).get_text()
             if "Fully Remote" in location:
@@ -60,7 +72,7 @@ def just_join_function(session):
                 remote = False
             location = location.split(",")[0]
             wages = result.find("div", {"class": "jss263"}).get_text()
-
+            
             # Saving data
             new_just_join = Just_join(
                 time=time,

@@ -8,7 +8,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from collection_of_website.base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
 
 
 class SolidJob(BaseSite):
@@ -44,6 +44,9 @@ def solid_jobs_function(session):
         else:
             # Scrapping details
             title = result.find("a", {"class": "color-dark-grey color-blue-onhover"}).get_text().strip()
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             company = result.find("a", {"class": "mat-tooltip-trigger mr-1 color-blue-onhover"}).get_text().strip()
             place = result.find("span", {"class": "mat-tooltip-trigger ng-star-inserted"}).get_text().strip()
             wages = result.find("a", {"class": "mat-tooltip-trigger badge badge-advanced mr-1 d-inline d-md-none no-wrap ng-star-inserted"}).get_text()

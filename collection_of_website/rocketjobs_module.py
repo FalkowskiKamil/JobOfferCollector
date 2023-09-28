@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
 
 class Rocketjobs(BaseSite):
     __tablename__ = "RocketJobs"
@@ -27,6 +27,9 @@ def rocketjobs_function(session):
         if offer_exist_in_db > 0: continue
         else:
             title = result.find("h2").get_text()
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             company = result.find("div", {"class":"css-jx23jo"}).find("span").get_text()
             location = result.find("div", {"class":"css-1wao8p8"}).get_text()
             try:

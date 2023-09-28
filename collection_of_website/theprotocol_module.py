@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
 
 
 class Theprotocol(BaseSite):
@@ -29,6 +29,9 @@ def theprotocol_function(session):
         if offer_exist_in_db > 0: continue
         else:
             title = result.find("h2").get_text()
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             company = result.find("div", {"class":"rootClass_rpqnjlt body1_b1gato5c initial_i1m6fsnc textClass_t1rna8so"}).get_text()
             location = result.find_all("div", {"class":"rootClass_rpqnjlt body1_b1gato5c initial_i1m6fsnc textClass_t1rna8so"})[-1].get_text()
             try: 

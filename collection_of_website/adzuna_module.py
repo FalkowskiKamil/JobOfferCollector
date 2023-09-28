@@ -35,7 +35,8 @@ def adzuna_function(session):
 
         # Integrate offert
         if "?se=" in link: link = link.split("?se=")[0]
-        
+        if "/land/ad/" in link:
+            continue
         # Checking if offer already exist in database
         offer_exist_in_db = (session.query(Adzuna).filter(Adzuna.link == link).count())
         if offer_exist_in_db > 0: continue

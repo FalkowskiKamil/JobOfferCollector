@@ -8,7 +8,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from collection_of_website.base_module import BaseSite, NewsOffert, find_digit
+from collection_of_website.base_module import BaseSite, NewsOffert, find_digit, title_checker
 
 
 class Infopraca(BaseSite):
@@ -61,6 +61,9 @@ def infopraca_function(session):
                 days_ago = find_digit(time_raw)
                 time = date.today() - timedelta(days=days_ago)
             title = result.find("a",{"class":"open-job-offer text-secondary"}).get_text()
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             company = result.find("h2",{"class":"h5"}).get_text()
             location = result.find_all("p",{"class":"text-muted"})
             if len(location)>3:

@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from collection_of_website.base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
 
 
 class Pracodajnia(BaseSite):
@@ -44,6 +44,9 @@ def pracodajnia_function(session):
             time_to_convert = result.find("time").get("datetime").split()[0].strip()
             time = datetime.strptime(time_to_convert, "%Y-%m-%d").date()
             title = result.find("td", {"class":"item ellipsis"}).find("a").get_text().strip().split("\t")[0]
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             wages = result.find("span", {"style":"float:right"}).get_text()
 
             # Saving data

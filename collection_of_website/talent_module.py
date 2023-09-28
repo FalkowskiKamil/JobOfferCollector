@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
 
 
 class Talent(BaseSite):
@@ -28,6 +28,9 @@ def talent_function(session):
         if offer_exist_in_db > 0: continue
         else:
             title = result.get("title")
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             company = result.find("div", {"class":"card__job-empname-label"}).get_text()
             location = result.find("div", {"class":"card__job-location"}).get_text()
             try:

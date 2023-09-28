@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
 
 
 class Nofluffjobs(BaseSite):
@@ -32,7 +32,6 @@ def nofluffjobs_function(session):
         container_div = soup.find("div", {"class": "list-container ng-star-inserted"})
         results += container_div.find_all("a", {"class": "posting-list-item"})
         
-
     # Collecting detils
     for result in results:
         link = result.get("href")
@@ -44,6 +43,9 @@ def nofluffjobs_function(session):
         else:
             # Scrapping details
             title = result.find("h3").get_text()
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             company = result.find("span").get_text().strip()
             location = result.find("span", {"class": "tw-text-ellipsis tw-inline-block tw-overflow-hidden tw-whitespace-nowrap lg:tw-max-w-[100px] tw-text-right"}).get_text()
             wages = result.find("span", {"class": "text-truncate badgy salary tw-btn tw-btn-secondary-outline tw-btn-xs ng-star-inserted"}).get_text()

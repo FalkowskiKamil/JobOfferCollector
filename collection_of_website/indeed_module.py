@@ -40,13 +40,12 @@ def indeed_function(session):
     # Iterating over pages
     number_of_offert_span = soup.find("div", {"class":"jobsearch-JobCountAndSortPane-jobCount css-1af0d6o eu4oa1w0"}).find("span").get_text()
     number_of_offert = find_digit(number_of_offert_span)
-    number_of_page = math.ceil(int(number_of_offert) / 15) - 4
+    number_of_page = math.ceil(int(number_of_offert) / 15) -2
     for page in range(number_of_page):
         driver = next_page(driver)
         html = driver.page_source
         soup = BeautifulSoup(html, "html.parser")
         results += soup.find_all("div", {"class":"job_seen_beacon"})
-
     driver.close()
     # Collecting details
     for result in results:
@@ -103,10 +102,10 @@ def next_page(driver):
     try:
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
         try:
-            next_site_button = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div/div[1]/div/div/div[5]/div[1]/nav/div[7]/a")))
+            next_site_button = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[7]/a")))
         except:
-            # Case for first & last site        
-            next_site_button = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div/div[1]/div/div/div[5]/div[1]/nav/div[6]/a")))
+            # Case for first & last site 
+            next_site_button = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[6]/a")))
         next_site_button.click()
         return driver
         
@@ -119,9 +118,9 @@ def next_page(driver):
         newsletter.click()
         driver.execute_script("window.scrollTo(0,document.body.scrollHeight)")
         try:
-            next_site_button = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div/div[1]/div/div/div[5]/div[1]/nav/div[7]/a")))        
+            next_site_button = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[7]/a")))        
         except:
             # Case for first & last site           
-            next_site_button = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div/div[1]/div/div/div[5]/div[1]/nav/div[6]/a")))
+            next_site_button = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, "/html/body/main/div/div[1]/div/div/div[5]/div[1]/nav/div[6]/a")))
         next_site_button.click()
         return driver

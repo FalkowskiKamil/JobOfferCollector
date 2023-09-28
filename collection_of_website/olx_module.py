@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from collection_of_website.base_module import BaseSite, NewsOffert, date_translate, find_digit
+from collection_of_website.base_module import BaseSite, NewsOffert, date_translate, find_digit, title_checker
 
 
 class Olx(BaseSite):
@@ -79,6 +79,9 @@ def olx_function(session):
                 else:
                     time = date_translate(time_tag.get_text())
                 title = result.find("h6", {"class":"css-1jmx98l"}).get_text()
+                title_check = title_checker(title)
+                if title_check == True:
+                    continue
                 company = None
                 location = result.find("span", {"class":"css-d5w927"}).get_text()
                 try:

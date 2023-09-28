@@ -3,7 +3,7 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert
+from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
 
 
 class Szukampracy(BaseSite):
@@ -44,6 +44,9 @@ def szukampracy_function(session):
         else:
             company = result.find("a").get("title")
             title = box.find("h3").get_text()
+            title_check = title_checker(title)
+            if title_check == True:
+                continue
             time_raw = box.find("span",{"class":"nun-b"}).get_text()
             time = datetime.strptime(time_raw, '%d-%m-%Y')
             location = box.find("a", {"class":"nun-b"}).get_text().strip().split()[0]

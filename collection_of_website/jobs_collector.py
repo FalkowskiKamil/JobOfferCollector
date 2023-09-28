@@ -1,6 +1,8 @@
 import os
 import inspect
-import sys
+from time import sleep
+import traceback
+import winsound
 
 from sqlalchemy import inspect, func
 from sqlalchemy.orm import sessionmaker
@@ -24,8 +26,8 @@ from collection_of_website.theprotocol_module import theprotocol_function
 from collection_of_website.ziprecruiter_module import ziprecruiter_function
 from collection_of_website.base_module import Base, engine, BaseSite, NewsOffert
 
-def collect_offert(args=None):
 
+def collect_offert(args=None):
     # Init session
     inspector = inspect(engine)
     Session = sessionmaker(bind=engine)
@@ -37,7 +39,10 @@ def collect_offert(args=None):
 
     elif args == "last":
         source_counts = (
-            session.query(NewsOffert.source, func.count(NewsOffert.source)).group_by(NewsOffert.source).all())
+            session.query(NewsOffert.source, func.count(NewsOffert.source))
+            .group_by(NewsOffert.source)
+            .all()
+        )
         for source, count in source_counts:
             print(f"{count}x{source}")
         return
@@ -46,78 +51,149 @@ def collect_offert(args=None):
     else:
         # Deleting last searching data
         session.query(NewsOffert).delete()
-        # Deleting data oldest than 30 days
-        for table_class in BaseSite.__subclasses__():
-            records_to_delete = (session.query(table_class).filter(table_class.days_until_deadline == 0).all())
-            for record in records_to_delete:
-                session.delete(record)
+        # Deleting data older than 30 days
         session.commit()
-        
 
-    #Scraping over sites
-    index = 0
-    try:adzuna_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:bulldog_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:glassdor_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:indeed_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:infopraca_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:just_join_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:linkedin_function(session) 
-    except:print("oops #" + str(index))
-    index += 1
-    try:nofluffjobs_function(session)
-    except: print("oops #" + str(index))
-    index = 1
-    try:olx_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:pracodajnia_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:pracuj_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:rocketjobs_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:solid_jobs_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:szukampracy_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:talent_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:theprotocol_function(session)
-    except: print("oops #" + str(index))
-    index += 1
-    try:ziprecruiter_function(session)
-    except: print("oops #" + str(index))
-    index += 1
+    error_list = []
+    # Scraping over sites
+
+    
+    try:
+        adzuna_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    try:
+        bulldog_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    
+    
+    try:
+        glassdor_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+        
+    
+    try:
+        indeed_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+
+    
+    try:
+        infopraca_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+
+    
+    try:
+        just_join_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+
+    
+    try:
+        linkedin_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    try:
+        nofluffjobs_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    try:
+        olx_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    try:
+        pracodajnia_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+
+
+    try:
+        pracuj_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    
+    try:
+        rocketjobs_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    try:
+        solid_jobs_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    try:
+        szukampracy_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    try:
+        talent_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    try:
+        theprotocol_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
+    try:
+        ziprecruiter_function(session)
+    except Exception as e:
+        traceback_list = traceback.extract_tb(e.__traceback__)
+        function_name = traceback_list[1].name
+        error_list.append(function_name)
     
     # Saving results
     session.commit()
     session.close()
 
+
     # Clearing terminal
     clear = lambda: os.system("cls" if os.name == "nt" else "clear")
     clear()
-
+    sleep(1)
     # Summary of scrapping
-    source_counts = (session.query(NewsOffert.source, func.count(NewsOffert.source)).group_by(NewsOffert.source).all())
+    source_counts = (
+        session.query(NewsOffert.source, func.count(NewsOffert.source))
+        .group_by(NewsOffert.source)
+        .all()
+    )
     print("New offert:")
     for source, count in source_counts:
         print(f"{count} x {source}")
+    if len(error_list) > 1:
+        print(f"Error at: {error_list}")
+        winsound.PlaySound("*", winsound.SND_ALIAS)
+    else:
+        winsound.PlaySound(r"C:\Windows\Media\Speech On.wav", winsound.SND_FILENAME)
