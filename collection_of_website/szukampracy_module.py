@@ -19,11 +19,11 @@ def szukampracy_function(session):
     html = requests.get("https://szukampracy.pl/ogloszenie/strona/1?SearchForm%5Bstanowisko%5D=Python&SearchForm%5Bregion%5D%5B0%5D=3&SearchForm%5Bkategorie%5D=")
     soup = BeautifulSoup(html.content, "html.parser")
     root_link = "https://szukampracy.pl"
-    ul_list = soup.find_all("ul",{"class":"offer-list"})
-    results = ul_list[1].find_all("li",{"class":"ad-on-list"})
+    ul_list = soup.find("ul", {"class": "offer-list"})
+    results = ul_list.find_all("li", {"class": "ad-on-list"})
     # Iterating over pages
     try:
-        number_of_pages_container = soup.find("ul", {"class":"pagination"})
+        number_of_pages_container = soup.find("ul", {"class": "pagination"})
     except:
         number_of_pages_container = None
     if number_of_pages_container:
@@ -31,25 +31,26 @@ def szukampracy_function(session):
         for page in range(2, number_of_pages+2):
             html = requests.get(f"https://szukampracy.pl/ogloszenie/strona/{page}?SearchForm%5Bstanowisko%5D=Python&SearchForm%5Bregion%5D%5B0%5D=3&SearchForm%5Bkategorie%5D=")
             soup = BeautifulSoup(html.content, "html.parser")
-            ul_list = soup.find_all("ul",{"class":"offer-list"})
-            results += ul_list[0].find_all("li",{"class":"ad-on-list"})
+            ul_list = soup.find_all("ul", {"class": "offer-list"})
+            results += ul_list[0].find_all("li", {"class": "ad-on-list"})
 
+    existing_data = [entry.link for entry in session.query(Szukampracy).all()]
     # Collecting details
     for result in results:   
-        box = result.find("span",{"class":"description nun-sb"})
+        box = result.find("span", {"class": "description nun-sb"})
         link = root_link + box.find("a").get("href")
         # Checking if offer already exist in database
-        offer_exist_in_db = (session.query(Szukampracy).filter(Szukampracy.link == link).count())
-        if offer_exist_in_db > 0: continue
+        if link in existing_data:
+            continue
         else:
             company = result.find("a").get("title")
             title = box.find("h3").get_text()
             title_check = title_checker(title)
-            if title_check == True:
+            if title_check is True:
                 continue
-            time_raw = box.find("span",{"class":"nun-b"}).get_text()
+            time_raw = box.find("span", {"class": "nun-b"}).get_text()
             time = datetime.strptime(time_raw, '%d-%m-%Y')
-            location = box.find("a", {"class":"nun-b"}).get_text().strip().split()[0]
+            location = box.find("a", {"class": "nun-b"}).get_text().strip().split()[0]
             # Saving details
             new_szukam_pracy = Szukampracy(
                 time=time,
@@ -59,11 +60,9 @@ def szukampracy_function(session):
                 link=link)
 
             new_offer = NewsOffert(
-                time=time,
                 offer_title=title,
                 company_name=company,
                 location=location,
                 link=link,
-                source="SzukamPracy")
+                source="szukam_pracy")
             session.add_all([new_szukam_pracy, new_offer])
-

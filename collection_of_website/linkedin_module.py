@@ -7,7 +7,7 @@ from sqlalchemy import Column, String
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
 from collection_of_website.base_module import BaseSite, NewsOffert, find_digit, title_checker
@@ -15,7 +15,8 @@ from collection_of_website.base_module import BaseSite, NewsOffert, find_digit, 
 
 class Linkedin(BaseSite):
     __tablename__ = "Linkedin"
-    offert_id = Column(String)
+    offert_id = Column(String, unique=True)
+
 
 def linkedin_function(session):
     # Decrement deadline
@@ -29,7 +30,7 @@ def linkedin_function(session):
     driver = webdriver.Chrome(options=options)
 
     # Scrapping offert
-    driver.get("https://www.linkedin.com/jobs/search/?currentJobId=3630027367&f_E=1%2C2&f_TPR=r604800&geoId=90009828&keywords=Python&location=Warszawa%20i%20okolice&refresh=true&sortBy=R")
+    driver.get("https://www.linkedin.com/jobs/search/?keywords=Python&location=Warszawa%20i%20okolice&locationId=&geoId=90009828&f_TPR=r604800&f_PP=102560051&f_E=1%2C2&f_WT=1%2C3%2C2&position=1&pageNum=0")
     sleep(1)
     number_of_offert_text = driver.find_element(By.XPATH, "/html/body/div[3]/div/main/div/h1/span[1]").text
     number_of_offert = find_digit(number_of_offert_text)
@@ -52,21 +53,21 @@ def linkedin_function(session):
 
             # Closing loggin and newsletter div
             try:
-                element = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[6]/button')))
+                element = WebDriverWait(driver, 2).until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[6]/button')))
                 element.click()
             except:
-                number_of_pages+=1
+                number_of_pages += 1
             try:
-                element2 = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[5]/button')))
+                element2 = WebDriverWait(driver, 2).until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[5]/button')))
                 element2.click()
             except:
-                number_of_pages +=1
+                number_of_pages += 1
 
             # Button part
             for page in range(number_of_pages):
                 try:
                     driver.execute_script("window.scrollBy(0,document.body.scrollHeight)")
-                    element = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[3]/div/main/section[2]/button')))
+                    element = WebDriverWait(driver, 2).until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[3]/div/main/section[2]/button')))
                     element.click()
                     sleep(2)
                 except:
@@ -76,35 +77,36 @@ def linkedin_function(session):
     # Scrapping full-page
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
-    results = soup.find_all("div", {"class":"base-card relative w-full hover:no-underline focus:no-underline base-card--link base-search-card base-search-card--link job-search-card"})
+    results = soup.find_all("div", {"class": "base-card relative w-full hover:no-underline focus:no-underline base-card--link base-search-card base-search-card--link job-search-card"})
     driver.close()
-    
+    existing_data = [int(entry.offert_id) for entry in session.query(Linkedin).all()]
     # Collecting details
     for result in results:
-        offert_id = find_digit(result.get("data-entity-urn"))
-        link = (result.find("a", {"class":"base-card__full-link"}).get("href")).strip()
+        offert_id = int(find_digit(result.get("data-entity-urn")))
+        link = (result.find("a", {"class": "base-card__full-link"}).get("href")).strip()
 
         # Checking if offer already exist in database
-        offer_exist_in_db = (session.query(Linkedin).filter(Linkedin.offert_id == offert_id).count())
-        if offer_exist_in_db > 0: continue
+        if offert_id in existing_data:
+            continue
         else:
-            company = (result.find("h4",{"class":"base-search-card__subtitle"}).get_text()).strip()
-            title = (result.find("h3", {"class":"base-search-card__title"}).get_text()).strip()
+            existing_data.append(offert_id)
+            company = (result.find("h4", {"class": "base-search-card__subtitle"}).get_text()).strip()
+            title = (result.find("h3", {"class": "base-search-card__title"}).get_text()).strip()
             title_check = title_checker(title)
-            if title_check == True:
+            if title_check is True:
                 continue
-            location = (result.find("span",{"class":"job-search-card__location"}).get_text()).strip()
+            location = (result.find("span", {"class": "job-search-card__location"}).get_text()).strip()
 
             # Transform date
             try:
-                days_ago = find_digit((result.find("time", {"class":"job-search-card__listdate"}).get_text()).strip())
+                days_ago = find_digit((result.find("time", {"class": "job-search-card__listdate"}).get_text()).strip())
                 time = date.today() - timedelta(days=days_ago)
             except:
                 time = date.today()
 
             # Saving data
             new_linked = Linkedin(
-                offert_id = offert_id,
+                offert_id=offert_id,
                 time=time,
                 offer_title=title,
                 company_name=company,
@@ -112,10 +114,9 @@ def linkedin_function(session):
                 link=link,)
             
             new_offer = NewsOffert(
-                time=time,
                 offer_title=title,
                 company_name=company,
                 location=location,
                 link=link,
-                source="Linkedin")
+                source="linked")
             session.add_all([new_linked, new_offer])

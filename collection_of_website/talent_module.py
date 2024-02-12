@@ -1,3 +1,4 @@
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -16,41 +17,36 @@ def talent_function(session):
     # Scrapping data
     html = requests.get("https://pl.talent.com/pl/jobs?k=Python&l=Warsaw%2C+Mazovia&radius=50")
     soup = BeautifulSoup(html.content, "html.parser")
-    results = soup.find_all("div", {"class":"link-job-wrap"})
+    results = soup.find_all("div", {"class": "link-job-wrap"})
     root_site = "https://pl.talent.com/view?id="
 
+    existing_data = [entry.link for entry in session.query(Talent).all()]
     # Collecting details
     for result in results:
-        link = root_site + result.find_parent("div",{"class":"card"}).get("data-id")
+        link = root_site + result.find_parent("div", {"class": "card"}).get("data-id")
 
         # Checking if offer already exist in database
-        offer_exist_in_db = (session.query(Talent).filter(Talent.link == link).count())
-        if offer_exist_in_db > 0: continue
+        if link in existing_data:
+            continue
         else:
             title = result.get("title")
             title_check = title_checker(title)
-            if title_check == True:
+            if title_check is True:
                 continue
-            company = result.find("div", {"class":"card__job-empname-label"}).get_text()
-            location = result.find("div", {"class":"card__job-location"}).get_text()
-            try:
-                wages = result.find("div", {"class":"card__job-badge-wrap card__job-badge-salary"}).get_text()
-            except:
-                wages = None
+            company = result.find("div", {"class": "card__job-empname-label"}).get_text()
+            location = result.find("div", {"class": "card__job-location"}).get_text()
 
             # Saving details
             new_talent = Talent(
                 offer_title=title,
                 company_name=company,
                 location=location,
-                wages=wages,
                 link=link)
 
             new_offer = NewsOffert(
                 offer_title=title,
                 company_name=company,
                 location=location,
-                wages=wages,
                 link=link,
-                source="Talent")
+                source="talent")
             session.add_all([new_talent, new_offer])

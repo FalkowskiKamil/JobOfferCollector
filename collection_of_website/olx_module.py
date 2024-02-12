@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
 from collection_of_website.base_module import BaseSite, NewsOffert, date_translate, find_digit, title_checker
@@ -22,12 +22,12 @@ def olx_function(session):
     # Init Selenium Driver
     options = Options()
     options.add_argument('--headless=new')
-    #options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
+    # options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
     driver = webdriver.Chrome(options=options)
     # Scrapping init
     driver.get("https://www.olx.pl/praca/q-Python/?page=1")
     try:
-        cookie_button = WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="onetrust-accept-btn-handler"]')))    
+        cookie_button = WebDriverWait(driver, 3).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="onetrust-accept-btn-handler"]')))
     except:
         cookie_button = None
     if cookie_button:
@@ -38,8 +38,9 @@ def olx_function(session):
     
     # Checking count of offert
     results = soup.find_all("a", {"class": "css-rc5s2u"})
-    number_of_offert_text = soup.find("span", {"data-testid":"total-count"}).get_text()
+    number_of_offert_text = soup.find("span", {"data-testid": "total-count"}).get_text()
     number_of_offert = find_digit(number_of_offert_text)
+
     # Calculating next-page count offert
     if number_of_offert > 40:
         number_of_pages_ul = soup.find("ul", {"class": "pagination-list"})
@@ -50,7 +51,7 @@ def olx_function(session):
             try:
                 driver.get(f"https://www.olx.pl/praca/q-Python/?page={page}")
             except:
-                cookie_button = WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="onetrust-accept-btn-handler"]')))
+                cookie_button = WebDriverWait(driver, 3).until(ec.element_to_be_clickable((By.XPATH, '//*[@id="onetrust-accept-btn-handler"]')))
                 if cookie_button:
                     cookie_button.click()
                 driver.get(f"https://www.olx.pl/praca/q-Python/?page={page}")
@@ -59,16 +60,18 @@ def olx_function(session):
             results += soup.find_all("a", {"class": "css-rc5s2u"})
     driver.close()
 
+    existing_data = [entry.link for entry in session.query(Olx).all()]
     # Collecting details
     for result in results:
         link = root_site + result.get("href")
 
         # Checking if data already in db
-        offer_exist_in_db = session.query(Olx).filter(Olx.link == link).count()
-        if offer_exist_in_db > 0: continue
+        if link in existing_data: 
+            continue
         else:
+            existing_data.append(link)
             try:
-                time_tag = result.find("p", {"class":"css-l3c9zc"})
+                time_tag = result.find("div", {"class": "css-g39uhb"}).find("p")
                 # Clearing date data
                 if "Dzisiaj" in time_tag.get_text():
                     time = date.today()
@@ -78,23 +81,18 @@ def olx_function(session):
                     time = date_translate(time_tag.get_text().removeprefix("Dodane "))
                 else:
                     time = date_translate(time_tag.get_text())
-                title = result.find("h6", {"class":"css-1jmx98l"}).get_text()
+                title = result.find("h6", {"class": "css-1jmx98l"}).get_text()
                 title_check = title_checker(title)
-                if title_check == True:
+                if title_check is True:
                     continue
                 company = None
-                location = result.find("span", {"class":"css-d5w927"}).get_text()
-                try:
-                    result.find("p", {"class":"css-1hp12oq"}).get_text()
-                except:
-                    wages = None
+                location = result.find("span", {"class": "css-d5w927"}).get_text()
                 
-                #Searching of remote-avaibility
-                remote = False
-                additional_info = result.find_all("span", {"class":"css-1m53r4k"})
+                # Searching of remote-avaibility
+                additional_info = result.find_all("span", {"class": "css-1m53r4k"})
                 for info in additional_info:
                     if info.get_text() == "Praca zdalna dozwolona":
-                        remote = True
+                        location += ", Remote"
                         break
 
                 # Saving data
@@ -103,19 +101,14 @@ def olx_function(session):
                     offer_title=title,
                     company_name=company,
                     location=location,
-                    wages=wages,
-                    link=link,
-                    remote=remote)
+                    link=link,)
                 
                 new_offer = NewsOffert(
-                    time=time,
                     offer_title=title,
                     company_name=company,
                     location=location,
-                    wages=wages,
                     link=link,
-                    remote=remote,
-                    source = "OLX")
+                    source="olx")
                 session.add_all([new_olx, new_offer]) 
             except:
                 continue

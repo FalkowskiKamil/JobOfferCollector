@@ -25,12 +25,10 @@ class BaseSite(Base):
     applicated = Column(Boolean, default=False)
     link = Column(String, unique=True)
     location = Column(String, nullable=True)
-    time = Column(Date, default=date.today())
     company_name = Column(String, nullable=True)
-    wages = Column(String, nullable=True)
-    remote = Column(Boolean, default=False)
     id = Column(Integer, primary_key=True)
-    days_until_deadline = Column(Integer, default=30)
+    time = Column(Date, default=date.today())
+    days_until_deadline = Column(Integer, default=14)
 
     @classmethod
     def decrement_deadline(cls, session: Session):
@@ -38,14 +36,14 @@ class BaseSite(Base):
         session.execute(stmt)
         session.commit()
 
-        # Deleting when offert oldest than 30 days
+        # Deleting when offert older than 30 days
         delete_stmt = delete(cls).where(cls.days_until_deadline == 0)
         session.execute(delete_stmt)
         session.commit()
 
 
 class NewsOffert(BaseSite):
-    __tablename__ = "News_Offer"
+    __tablename__ = "News_Offert"   
     source = Column(String)
 
 
@@ -79,6 +77,10 @@ def find_digit(text):
 
 def title_checker(title):
     keywords = [
+        "korepetytor",
+        "korepetycje",
+        "electrical",
+        "elektryczna",
         "frontend",
         "account",
         "german",
@@ -157,7 +159,8 @@ def title_checker(title):
         "linux",
         "unix",
         "c#",
-        "c+" "azure",
+        "c+",
+        "azure",
         "e-commerce",
         "marketing",
     ]
