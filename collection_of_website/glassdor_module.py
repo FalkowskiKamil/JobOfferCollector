@@ -13,6 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from collection_of_website.base_module import (
     BaseSite,
     NewsOffert,
+    create_table,
     find_digit,
     title_checker,
 )
@@ -23,7 +24,10 @@ class Glassdor(BaseSite):
     offert_id = Column(String)
 
 
-def glassdor_function(session):
+def glassdor_function(session, inspector):
+    if not inspector.has_table(Glassdor.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     glassdor = Glassdor()
     glassdor.decrement_deadline(session)
@@ -122,6 +126,7 @@ def glassdor_function(session):
             )
 
             session.add_all([new_glassdor, new_offer])
+    return session
 
 
 def next_page(driver):

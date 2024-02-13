@@ -10,8 +10,9 @@ from sqlalchemy import (
     create_engine,
     update,
     delete,
+    inspect,
 )
-from sqlalchemy.orm import declarative_base, Session
+from sqlalchemy.orm import declarative_base, Session, sessionmaker
 
 
 Base = declarative_base()
@@ -45,6 +46,19 @@ class BaseSite(Base):
 class NewsOffert(BaseSite):
     __tablename__ = "News_Offert"   
     source = Column(String)
+
+
+def create_table(session):
+    session.close()
+    Base.metadata.create_all(session.bind)
+    session, inspector = init_database_connection()
+    return session, inspector
+
+
+def init_database_connection():
+    inspector = inspect(engine)
+    session = sessionmaker(bind=engine)()
+    return session, inspector
 
 
 def date_translate(time):

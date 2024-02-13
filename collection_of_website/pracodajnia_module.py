@@ -4,14 +4,16 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, title_checker
 
 
 class Pracodajnia(BaseSite):
     __tablename__ = "Pracodajnia"
 
 
-def pracodajnia_function(session):
+def pracodajnia_function(session, inspector):
+    if not inspector.has_table(Pracodajnia.__tablename__):
+        session, inspector = create_table(session)
     # Decrement deadline
     pracodajnia = Pracodajnia()
     pracodajnia.decrement_deadline(session)
@@ -57,3 +59,4 @@ def pracodajnia_function(session):
                 link=link,
                 source="pracodajnia")
             session.add_all([new_pracodajnia, new_offer])
+    return session

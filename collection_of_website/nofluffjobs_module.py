@@ -1,14 +1,17 @@
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, title_checker
 
 
 class Nofluffjobs(BaseSite):
     __tablename__ = "NoFluffJobs"
 
 
-def nofluffjobs_function(session):
+def nofluffjobs_function(session, inspector):
+    if not inspector.has_table(Nofluffjobs.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     nofluffjobs = Nofluffjobs()
     nofluffjobs.decrement_deadline(session)
@@ -58,3 +61,4 @@ def nofluffjobs_function(session):
                 link=link,
                 source="nofluffjobs")
             session.add_all([new_nofluffjobs, new_offer])
+    return session

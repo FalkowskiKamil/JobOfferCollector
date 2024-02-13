@@ -2,14 +2,17 @@
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table,  title_checker
 
 
 class Talent(BaseSite):
     __tablename__ = "Talent"
 
 
-def talent_function(session):
+def talent_function(session, inspector):
+    if not inspector.has_table(Talent.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     talent = Talent()
     talent.decrement_deadline(session)    
@@ -50,3 +53,4 @@ def talent_function(session):
                 link=link,
                 source="talent")
             session.add_all([new_talent, new_offer])
+    return session

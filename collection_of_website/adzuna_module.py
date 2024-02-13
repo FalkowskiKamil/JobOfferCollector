@@ -1,24 +1,27 @@
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, title_checker
 
 
 class Adzuna(BaseSite):
     __tablename__ = "Adzuna"
 
-def adzuna_module_function(session):
+
+def adzuna_function(session, inspector):
+    if not inspector.has_table(Adzuna.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     adzuna = Adzuna()
     adzuna.decrement_deadline(session)
+    existing_data = [entry.link for entry in session.query(Adzuna).all()]
 
     # Scrapping offert
     html = "https://www.adzuna.pl/search?adv=1&d=50&f=7&loc=129972&pp=50&sb=date&sd=down&qtl=Junior&qwd=Python"
     response = requests.get(html)
     soup = BeautifulSoup(response.content, "html.parser")
     results = soup.find_all("div", {"class": "a flex gap-2 md:gap-4 p-3 md:pb-1 border-b border-solid border-adzuna-gray-200 cursor-pointer hover:bg-adzuna-green-100 hover:border-adzuna-green-100 md:border md:rounded-lg md:mb-4"})
-
-    existing_data = [entry.link for entry in session.query(Adzuna).all()]
 
     # Collecting details
     for result in results:
@@ -62,3 +65,4 @@ def adzuna_module_function(session):
                 link=link,
                 source="adzuna")
             session.add_all([new_adzuna, new_offer])
+    return session

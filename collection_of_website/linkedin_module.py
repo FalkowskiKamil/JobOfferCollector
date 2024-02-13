@@ -10,7 +10,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-from collection_of_website.base_module import BaseSite, NewsOffert, find_digit, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, find_digit, title_checker
 
 
 class Linkedin(BaseSite):
@@ -18,7 +18,10 @@ class Linkedin(BaseSite):
     offert_id = Column(String, unique=True)
 
 
-def linkedin_function(session):
+def linkedin_function(session, inspector):
+    if not inspector.has_table(Linkedin.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     linkedin = Linkedin()
     linkedin.decrement_deadline(session)
@@ -120,3 +123,4 @@ def linkedin_function(session):
                 link=link,
                 source="linked")
             session.add_all([new_linked, new_offer])
+    return session

@@ -1,14 +1,17 @@
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, title_checker
 
 
 class Theprotocol(BaseSite):
     __tablename__ = "Theprotocol"
 
 
-def theprotocol_function(session):
+def theprotocol_function(session, inspector):
+    if not inspector.has_table(Theprotocol.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     theprotocol = Theprotocol()
     theprotocol.decrement_deadline(session) 
@@ -52,3 +55,4 @@ def theprotocol_function(session):
                 link=link,
                 source="theprotocol")
             session.add_all([new_theprotocol, new_offer])
+    return session

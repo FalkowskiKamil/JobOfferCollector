@@ -5,14 +5,16 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from sqlalchemy import and_
-from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, title_checker
 
 
 class Ziprecruiter(BaseSite):
     __tablename__ = "ZipRecruiter"
 
 
-def ziprecruiter_function(session):
+def ziprecruiter_function(session, inspector):
+    if not inspector.has_table(Ziprecruiter.__tablename__):
+        session, inspector = create_table(session)
     # Decrement deadline
     ziprecruiter = Ziprecruiter()
     ziprecruiter.decrement_deadline(session)
@@ -68,3 +70,4 @@ def ziprecruiter_function(session):
                 link=link,
                 source="ziprecruiter")
             session.add_all([new_ziprecruiter, new_offer])
+    return session

@@ -5,14 +5,17 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, title_checker
 
 
 class SolidJob(BaseSite):
     __tablename__ = "SolidJobs"
 
 
-def solid_jobs_function(session):
+def solid_jobs_function(session, inspector):
+    if not inspector.has_table(SolidJob.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     solid_jobs = SolidJob()
     solid_jobs.decrement_deadline(session)
@@ -64,3 +67,4 @@ def solid_jobs_function(session):
                 link=link,
                 source="solid_job")
             session.add_all([new_solid_job, new_offer])
+    return session

@@ -2,14 +2,16 @@
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, title_checker
 
 
 class Rocketjobs(BaseSite):
     __tablename__ = "RocketJobs"
 
 
-def rocketjobs_function(session):
+def rocketjobs_function(session, inspector):
+    if not inspector.has_table(Rocketjobs.__tablename__):
+        session, inspector = create_table(session)
     # Decrement deadline
     rocketjobs = Rocketjobs()
     rocketjobs.decrement_deadline(session)
@@ -55,3 +57,4 @@ def rocketjobs_function(session):
                 source="rocket",
             )
             session.add_all([new_rocket, new_offer])
+    return session

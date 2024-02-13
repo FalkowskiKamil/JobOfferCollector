@@ -5,14 +5,16 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from collection_of_website.base_module import BaseSite, NewsOffert, find_digit, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table,  find_digit, title_checker
 
 
 class Infopraca(BaseSite):
     __tablename__ = "Infopraca"
 
 
-def infopraca_function(session):
+def infopraca_function(session, inspector):
+    if not inspector.has_table(Infopraca.__tablename__):
+        session, inspector = create_table(session)
     # Decrement deadline
     infopraca = Infopraca()
     infopraca.decrement_deadline(session)
@@ -85,3 +87,4 @@ def infopraca_function(session):
                 link=link,
                 source="infopraca")
             session.add_all([new_infopraca, new_offer])
+    return session

@@ -1,14 +1,17 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, title_checker
 
 
 class Bulldog(BaseSite):
     __tablename__ = "Bulldog"
 
 
-def bulldog_function(session):
+def bulldog_function(session, inspector):
+    if not inspector.has_table(Bulldog.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     bull_dog = Bulldog()
     bull_dog.decrement_deadline(session)
@@ -62,3 +65,4 @@ def bulldog_function(session):
                 link=link,
                 source="bulldog")
             session.add_all([new_bulldog_job, new_offert])
+    return session

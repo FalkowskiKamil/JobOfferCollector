@@ -4,14 +4,17 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from collection_of_website.base_module import BaseSite, NewsOffert, find_digit, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, find_digit, title_checker
 
 
 class JustJoin(BaseSite):
     __tablename__ = "Just Join"
 
 
-def just_join_function(session):
+def just_join_function(session, inspector):
+    if not inspector.has_table(JustJoin.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     just_join = JustJoin()
     just_join.decrement_deadline(session)
@@ -71,3 +74,4 @@ def just_join_function(session):
                 link=link,
                 source="just_join")
             session.add_all([new_just_join, new_offer])
+    return session

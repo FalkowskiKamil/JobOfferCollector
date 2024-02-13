@@ -7,14 +7,17 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-from collection_of_website.base_module import BaseSite, NewsOffert, date_translate, find_digit, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, date_translate, find_digit, title_checker
 
 
 class Olx(BaseSite):
     __tablename__ = "OLX"
 
 
-def olx_function(session):
+def olx_function(session, inspector):
+    if not inspector.has_table(Olx.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     olx = Olx()
     olx.decrement_deadline(session)
@@ -112,3 +115,4 @@ def olx_function(session):
                 session.add_all([new_olx, new_offer]) 
             except:
                 continue
+    return session

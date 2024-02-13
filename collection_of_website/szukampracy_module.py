@@ -3,14 +3,17 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
-from collection_of_website.base_module import BaseSite, NewsOffert, title_checker
+from collection_of_website.base_module import BaseSite, NewsOffert, create_table, title_checker
 
 
 class Szukampracy(BaseSite):
     __tablename__ = "SzukamPracy"
 
 
-def szukampracy_function(session):
+def szukampracy_function(session, inspector):
+    if not inspector.has_table(Szukampracy.__tablename__):
+        session, inspector = create_table(session)
+
     # Decrement deadline
     szukampracy = Szukampracy()
     szukampracy.decrement_deadline(session)
@@ -66,3 +69,4 @@ def szukampracy_function(session):
                 link=link,
                 source="szukam_pracy")
             session.add_all([new_szukam_pracy, new_offer])
+    return session
