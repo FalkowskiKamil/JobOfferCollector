@@ -9,31 +9,29 @@ class Bulldog(BaseSite):
 
 
 def bulldog_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(Bulldog.__tablename__):
         session, inspector = create_table(session)
 
     # Decrement deadline
     bull_dog = Bulldog()
     bull_dog.decrement_deadline(session)
+    existing_data = [entry.link for entry in session.query(Bulldog).all()]
 
-    # Init Selenium Driver
+    # Init Selenium Driver setting
     options = Options()
     options.add_argument('--headless=new')
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
-    driver = webdriver.Chrome(options=options)
-    # Scrapping data
-    driver.get("https://bulldogjob.pl/companies/jobs/s/skills,Python/experienceLevel,junior,intern")
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    container = soup.find_all("div", {"class": "container"})
-    driver.close()
-    existing_data = [entry.link for entry in session.query(Bulldog).all()]
-    results = container[1].find_all("a")
+
+    # Scrapping python offert
+    results = scrapping_data(html="https://bulldogjob.pl/companies/jobs/s/skills,Python/experienceLevel,junior,intern", options=options)
+
+    # Scrapping CyberSecurity offert
+    results += scrapping_data(html="https://bulldogjob.pl/companies/jobs/s/experienceLevel,junior,intern/role,security", options=options)
+
     # Collecting details
-    index = 0
     for result in results:
         link = result.get("href")
-        index += 1
         # Checking if data already exist in db
         if link in existing_data:
             continue
@@ -66,3 +64,14 @@ def bulldog_function(session, inspector):
                 source="bulldog")
             session.add_all([new_bulldog_job, new_offert])
     return session
+
+
+def scrapping_data(html, options):
+    driver = webdriver.Chrome(options=options)
+    driver.get(html)
+    html = driver.page_source
+    soup = BeautifulSoup(html, "html.parser")
+    container = soup.find_all("div", {"class": "container"})
+    results = container[1].find_all("a")
+    driver.close()
+    return results

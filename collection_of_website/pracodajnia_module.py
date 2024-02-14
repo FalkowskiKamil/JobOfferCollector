@@ -12,11 +12,14 @@ class Pracodajnia(BaseSite):
 
 
 def pracodajnia_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(Pracodajnia.__tablename__):
         session, inspector = create_table(session)
+
     # Decrement deadline
     pracodajnia = Pracodajnia()
     pracodajnia.decrement_deadline(session)
+    existing_data = [entry.link for entry in session.query(Pracodajnia).all()]
 
     # Init Selenium Driver
     options = Options()
@@ -25,14 +28,13 @@ def pracodajnia_function(session, inspector):
     driver = webdriver.Chrome(options=options)
 
     # Scrapping data
-    driver.get("https://pracodajnia.pl/index.php?list=job&search=python&title=on&description=on")
+    driver.get("https://pracodajnia.pl/index.php?list=job&pathcat_job=informatyka&order=published&sort=desc&part=1")
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     results = soup.find_all("div", {"class": "listing_list mini_rectangle_rounded"})
     root_link = "https:"
     driver.close()
 
-    existing_data = [entry.link for entry in session.query(Pracodajnia).all()]
     # Collecting details
     for result in results:
         link = root_link + result.find("td", {"class": "item ellipsis"}).find("a").get("href")

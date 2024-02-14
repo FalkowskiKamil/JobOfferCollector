@@ -9,6 +9,7 @@ class Adzuna(BaseSite):
 
 
 def adzuna_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(Adzuna.__tablename__):
         session, inspector = create_table(session)
 
@@ -17,11 +18,13 @@ def adzuna_function(session, inspector):
     adzuna.decrement_deadline(session)
     existing_data = [entry.link for entry in session.query(Adzuna).all()]
 
-    # Scrapping offert
+    # Scrapping offert for python
     html = "https://www.adzuna.pl/search?adv=1&d=50&f=7&loc=129972&pp=50&sb=date&sd=down&qtl=Junior&qwd=Python"
-    response = requests.get(html)
-    soup = BeautifulSoup(response.content, "html.parser")
-    results = soup.find_all("div", {"class": "a flex gap-2 md:gap-4 p-3 md:pb-1 border-b border-solid border-adzuna-gray-200 cursor-pointer hover:bg-adzuna-green-100 hover:border-adzuna-green-100 md:border md:rounded-lg md:mb-4"})
+    results = scrapping_data(html)
+
+    # Scrapping offert for Cyber
+    html = "https://www.adzuna.pl/search?adv=1&qwd=Junior&qor=Security%20Cybersecurity&qxl=Senior%20&w=mazowieckie%2C%20Polska&pp=50"
+    results += scrapping_data(html)
 
     # Collecting details
     for result in results:
@@ -66,3 +69,10 @@ def adzuna_function(session, inspector):
                 source="adzuna")
             session.add_all([new_adzuna, new_offer])
     return session
+
+
+def scrapping_data(html):
+    response = requests.get(html)
+    soup = BeautifulSoup(response.content, "html.parser")
+    results = soup.find_all("div", {"class": "a flex gap-2 md:gap-4 p-3 md:pb-1 border-b border-solid border-adzuna-gray-200 cursor-pointer hover:bg-adzuna-green-100 hover:border-adzuna-green-100 md:border md:rounded-lg md:mb-4"})
+    return results

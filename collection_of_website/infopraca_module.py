@@ -13,36 +13,26 @@ class Infopraca(BaseSite):
 
 
 def infopraca_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(Infopraca.__tablename__):
         session, inspector = create_table(session)
+
     # Decrement deadline
     infopraca = Infopraca()
     infopraca.decrement_deadline(session)
+    existing_data = [entry.link for entry in session.query(Infopraca).all()]
+    root_link = "https://www.infopraca.pl/"
 
-    # Init Selenium Driver
+    # Init Selenium Driver setting
     options = Options()
     options.add_argument('--headless=new')
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
-    driver = webdriver.Chrome(options=options)
 
-    # Scrapping data
-    driver.get("https://www.infopraca.pl/praca?q=python&lc=Warszawa&d=50&pg=1")
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    results = soup.find_all("div", {"class": "job-offer"})
-    root_link = "https://www.infopraca.pl/"
-
-    # Iterating over pages
-    number_of_offert = find_digit(soup.find("div", {"class": "fs-lg me-4"}).get_text())
-    number_of_pages = math.ceil(number_of_offert/18) - 1
-    for page in range(2, number_of_pages + 2):
-        driver.get(f"https://www.infopraca.pl/praca?d=50&lc=&pg={page}&q=python")
-        html = driver.page_source
-        soup = BeautifulSoup(html, "html.parser")
-        results += soup.find_all("div", {"class": "job-offer"})
-    driver.close()
-    
-    existing_data = [entry.link for entry in session.query(Infopraca).all()]
+    # Scrapping Python & SOC offert
+    html_python = "https://www.infopraca.pl/praca?d=50&lc=Warszawa&q=python"
+    results = scrapping_offert(html_python, options)
+    html_security = "https://www.infopraca.pl/praca?d=50&lc=Warszawa&q=security"
+    results += scrapping_offert(html_security, options)
 
     # Collecting details
     for result in results:          
@@ -71,7 +61,7 @@ def infopraca_function(session, inspector):
                 location = location[0].get_text().strip()
             else:
                 location = None
-            
+
             # Saving data
             new_infopraca = Infopraca(
                 time=time,
@@ -88,3 +78,22 @@ def infopraca_function(session, inspector):
                 source="infopraca")
             session.add_all([new_infopraca, new_offer])
     return session
+
+
+def scrapping_offert(html, options):
+    driver = webdriver.Chrome(options=options)
+    driver.get(html)
+    html = driver.page_source
+    soup = BeautifulSoup(html, "html.parser")
+    results = soup.find_all("div", {"class": "job-offer"})
+
+    # Iterating over pages
+    number_of_offert = find_digit(soup.find("div", {"class": "fs-lg me-4"}).get_text())
+    number_of_pages = math.ceil(number_of_offert/18) - 1
+    for page in range(2, number_of_pages + 2):
+        driver.get(f"{html}&pg={page}")
+        html = driver.page_source
+        soup = BeautifulSoup(html, "html.parser")
+        results += soup.find_all("div", {"class": "job-offer"})
+    driver.close()
+    return results

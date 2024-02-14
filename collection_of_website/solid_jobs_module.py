@@ -13,28 +13,27 @@ class SolidJob(BaseSite):
 
 
 def solid_jobs_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(SolidJob.__tablename__):
         session, inspector = create_table(session)
 
     # Decrement deadline
     solid_jobs = SolidJob()
     solid_jobs.decrement_deadline(session)
-    
-    # Init Selenium Driver
+    root_link = "https://solid.jobs"
+    existing_data = [entry.link for entry in session.query(SolidJob).all()]
+
+    # Init Selenium Driver settings
     options = Options()
     options.add_argument('--headless=new')
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
-    driver = webdriver.Chrome(options=options)
 
     # Scrapping offert
-    driver.get("https://solid.jobs/offers/it;experiences=Junior;subcategories=Python")
-    sleep(2)
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    results = soup.find_all("offer-list-item")
-    root_link = "https://solid.jobs"
-    driver.close()
-    existing_data = [entry.link for entry in session.query(SolidJob).all()]
+    html_python = "https://solid.jobs/offers/it;experiences=Junior;subcategories=Python"
+    results = scrapping_offert(html_python, options)
+    html_cyber = "https://solid.jobs/offers/it;cities=Warszawa;categories=Security;experiences=Junior"
+    results += scrapping_offert(html_cyber, options)
+
     # Collecting details
     for result in results:
         link = root_link + result.find("a").get("href")
@@ -68,3 +67,14 @@ def solid_jobs_function(session, inspector):
                 source="solid_job")
             session.add_all([new_solid_job, new_offer])
     return session
+
+
+def scrapping_offert(html, options):
+    driver = webdriver.Chrome(options=options)
+    driver.get(html)
+    sleep(2)
+    html = driver.page_source
+    soup = BeautifulSoup(html, "html.parser")
+    results = soup.find_all("offer-list-item")
+    driver.close()
+    return results

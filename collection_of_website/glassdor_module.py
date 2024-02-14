@@ -25,68 +25,36 @@ class Glassdor(BaseSite):
 
 
 def glassdor_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(Glassdor.__tablename__):
         session, inspector = create_table(session)
 
     # Decrement deadline
     glassdor = Glassdor()
     glassdor.decrement_deadline(session)
+    existing_data = [entry.offert_id for entry in session.query(Glassdor).all()]
 
-    # Init Selenium Driver
+    # Init Selenium Driver setting
     options = Options()
     options.add_argument("--headless=new")
     options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
     )
-    driver = webdriver.Chrome(options=options)
-    driver.set_window_size(500, 1000)
-    # Scrapping offert
-    driver.get(
-        "https://www.glassdoor.com/Job/warsaw-junior-python-jobs-SRCH_IL.0,6_IC3094484_KO7,20.html?fromAge=7&sortBy=date_desc&radius=50"
-    )
-    cookies = WebDriverWait(driver, 5).until(
-        ec.element_to_be_clickable((By.XPATH, '//*[@id="onetrust-accept-btn-handler"]'))
-    )
-    if cookies:
-        cookies.click()
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
+    # Scrapping Python & Cyber offert
+    python_html = "https://www.glassdoor.com/Job/warsaw-junior-python-jobs-SRCH_IL.0,6_IC3094484_KO7,20.html?fromAge=7&sortBy=date_desc&radius=50"
+    results = scrapping_offert(python_html, options)
+    cyber_html = "https://www.glassdoor.com/Job/warsaw-masovia-security-jobs-SRCH_IL.0,14_IC3094484_KO15,23.htm?seniorityType=entrylevel"
+    results += scrapping_offert(cyber_html, options)
 
-    # Iterate over pages
-    number_of_offert = find_digit(
-        soup.find("h1", {"class": "SearchResultsHeader_jobCount__12dWB"}).get_text()
-    )
-
-    number_of_pages = math.ceil(int(number_of_offert) / 20)
-    if number_of_pages > 1:
-        for page in range(number_of_pages):
-            try:
-                driver = next_page(driver)
-            finally:
-                sleep(2)
-                continue
-
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    results = soup.find_all("li", {"class": "JobsList_jobListItem__JBBUV"})
-    results.pop()
-    driver.close()
-
-    existing_data = [entry.offert_id for entry in session.query(Glassdor).all()]
     # Collecting details
-    index = 0
     for result in results:
-        index += 1
         data_id = result.get("data-jobid")
         # Checking if offer already exist in database
         if data_id in existing_data:
             continue
         else:
             link = result.find("a").get("href")
-
-            days_ago = find_digit(
-                result.find("div", {"data-test": "job-age"}).get_text()
-            )
+            days_ago = find_digit(result.find("div", {"data-test": "job-age"}).get_text())
             if days_ago > 10:
                 days_ago = 1
             time = date.today() - timedelta(days=days_ago)
@@ -127,6 +95,41 @@ def glassdor_function(session, inspector):
 
             session.add_all([new_glassdor, new_offer])
     return session
+
+
+def scrapping_offert(html, options):
+    driver = webdriver.Chrome(options=options)
+    driver.set_window_size(500, 1000)
+    # Scrapping offert
+    driver.get(html)
+    cookies = WebDriverWait(driver, 5).until(
+        ec.element_to_be_clickable((By.XPATH, '//*[@id="onetrust-accept-btn-handler"]'))
+    )
+    if cookies:
+        cookies.click()
+    html = driver.page_source
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Iterate over pages
+    number_of_offert = find_digit(
+        soup.find("h1", {"class": "SearchResultsHeader_jobCount__12dWB"}).get_text()
+    )
+
+    number_of_pages = math.ceil(int(number_of_offert) / 20)
+    if number_of_pages > 1:
+        for page in range(number_of_pages):
+            try:
+                driver = next_page(driver)
+            finally:
+                sleep(2)
+                continue
+
+    html = driver.page_source
+    soup = BeautifulSoup(html, "html.parser")
+    results = soup.find_all("li", {"class": "JobsList_jobListItem__JBBUV"})
+    results.pop()
+    driver.close()
+    return results
 
 
 def next_page(driver):

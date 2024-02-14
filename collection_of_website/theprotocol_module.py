@@ -9,20 +9,22 @@ class Theprotocol(BaseSite):
 
 
 def theprotocol_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(Theprotocol.__tablename__):
         session, inspector = create_table(session)
 
     # Decrement deadline
     theprotocol = Theprotocol()
-    theprotocol.decrement_deadline(session) 
-
-    # Scrapping details   
-    html = requests.get("https://theprotocol.it/filtry/python;t/trainee,assistant,junior;p/warszawa;wp")
-    soup = BeautifulSoup(html.content, "html.parser")
-    results = soup.find_all("a", {"data-test": "list-item-offer"})
+    theprotocol.decrement_deadline(session)
     root_site = "https://theprotocol.it"
-
     existing_data = [entry.link for entry in session.query(Theprotocol).all()]
+
+    # Scrapping details
+    html_python = "https://theprotocol.it/filtry/python;t/trainee,assistant,junior;p/warszawa;wp"
+    results = scrapping_offert(html_python)
+    html_cyber = "https://theprotocol.it/filtry/security;sp/trainee,junior,assistant;p/warszawa;wp"
+    results += scrapping_offert(html_cyber)
+
     # Collecting details
     for result in results:
         link = root_site + result.get("href")
@@ -56,3 +58,10 @@ def theprotocol_function(session, inspector):
                 source="theprotocol")
             session.add_all([new_theprotocol, new_offer])
     return session
+
+
+def scrapping_offert(html):
+    html = requests.get(html)
+    soup = BeautifulSoup(html.content, "html.parser")
+    results = soup.find_all("a", {"data-test": "list-item-offer"})
+    return results

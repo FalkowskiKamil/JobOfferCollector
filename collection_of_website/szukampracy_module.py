@@ -11,33 +11,21 @@ class Szukampracy(BaseSite):
 
 
 def szukampracy_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(Szukampracy.__tablename__):
         session, inspector = create_table(session)
 
     # Decrement deadline
     szukampracy = Szukampracy()
     szukampracy.decrement_deadline(session)
-
-    # Scrapping offert
-    html = requests.get("https://szukampracy.pl/ogloszenie/strona/1?SearchForm%5Bstanowisko%5D=Python&SearchForm%5Bregion%5D%5B0%5D=3&SearchForm%5Bkategorie%5D=")
-    soup = BeautifulSoup(html.content, "html.parser")
-    root_link = "https://szukampracy.pl"
-    ul_list = soup.find("ul", {"class": "offer-list"})
-    results = ul_list.find_all("li", {"class": "ad-on-list"})
-    # Iterating over pages
-    try:
-        number_of_pages_container = soup.find("ul", {"class": "pagination"})
-    except:
-        number_of_pages_container = None
-    if number_of_pages_container:
-        number_of_pages = len(number_of_pages_container.find_all("li"))-2
-        for page in range(2, number_of_pages+2):
-            html = requests.get(f"https://szukampracy.pl/ogloszenie/strona/{page}?SearchForm%5Bstanowisko%5D=Python&SearchForm%5Bregion%5D%5B0%5D=3&SearchForm%5Bkategorie%5D=")
-            soup = BeautifulSoup(html.content, "html.parser")
-            ul_list = soup.find_all("ul", {"class": "offer-list"})
-            results += ul_list[0].find_all("li", {"class": "ad-on-list"})
-
     existing_data = [entry.link for entry in session.query(Szukampracy).all()]
+    root_link = "https://szukampracy.pl"
+
+    html_python = "https://szukampracy.pl/ogloszenie/strona/1?SearchForm%5Bstanowisko%5D=Python&SearchForm%5Bregion%5D%5B0%5D=3&SearchForm%5Bkategorie%5D="
+    results = scrapping_offert(html_python)
+    html_cyber = "https://szukampracy.pl/ogloszenie/strona/1?SearchForm%5Bstanowisko%5D=Security&SearchForm%5Bregion%5D%5B0%5D=3&SearchForm%5Bkategorie%5D="
+    results += scrapping_offert(html_cyber)
+
     # Collecting details
     for result in results:   
         box = result.find("span", {"class": "description nun-sb"})
@@ -70,3 +58,23 @@ def szukampracy_function(session, inspector):
                 source="szukam_pracy")
             session.add_all([new_szukam_pracy, new_offer])
     return session
+
+
+def scrapping_offert(html):
+    html = requests.get(html)
+    soup = BeautifulSoup(html.content, "html.parser")
+    ul_list = soup.find("ul", {"class": "offer-list"})
+    results = ul_list.find_all("li", {"class": "ad-on-list"})
+    # Iterating over pages
+    try:
+        number_of_pages_container = soup.find("ul", {"class": "pagination"})
+    except:
+        number_of_pages_container = None
+    if number_of_pages_container:
+        number_of_pages = len(number_of_pages_container.find_all("li"))-2
+        for page in range(2, number_of_pages+2):
+            html = requests.get(f"https://szukampracy.pl/ogloszenie/strona/{page}?SearchForm%5Bstanowisko%5D=Python&SearchForm%5Bregion%5D%5B0%5D=3&SearchForm%5Bkategorie%5D=")
+            soup = BeautifulSoup(html.content, "html.parser")
+            ul_list = soup.find_all("ul", {"class": "offer-list"})
+            results += ul_list[0].find_all("li", {"class": "ad-on-list"})
+    return results

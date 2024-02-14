@@ -12,28 +12,27 @@ class JustJoin(BaseSite):
 
 
 def just_join_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(JustJoin.__tablename__):
         session, inspector = create_table(session)
 
     # Decrement deadline
     just_join = JustJoin()
     just_join.decrement_deadline(session)
+    link_list = [str(entry.link) for entry in session.query(JustJoin).all()]
+    root_site = "https://justjoin.it"
 
-    # Init Selenium Driver
+    # Init Selenium Driver setting
     options = Options()
     options.add_argument('--headless=new')
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
-    driver = webdriver.Chrome(options=options)
 
-    # Scrapping data
-    driver.get("https://justjoin.it/warszawa/python/experience-level_junior")
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")    
-    results = soup.find_all("div", {"item": "[object Object]"})
-    root_site = "https://justjoin.it"
+    # Scrapping offert
+    html_python = "https://justjoin.it/warszawa/python/experience-level_junior"
+    results = scrapping_offert(html_python, options)
+    html_cyber = "https://justjoin.it/warszawa/security/experience-level_junior?index=0"
+    results += scrapping_offert(html_cyber, options)
 
-    driver.close()
-    link_list = [str(entry.link) for entry in session.query(JustJoin).all()]
     # Collecting details
     if len(results) == 0:
         raise ValueError
@@ -75,3 +74,12 @@ def just_join_function(session, inspector):
                 source="just_join")
             session.add_all([new_just_join, new_offer])
     return session
+
+def scrapping_offert(html, options):
+    driver = webdriver.Chrome(options=options)
+    driver.get(html)
+    html = driver.page_source
+    soup = BeautifulSoup(html, "html.parser")
+    results = soup.find_all("div", {"item": "[object Object]"})
+    driver.close()
+    return results

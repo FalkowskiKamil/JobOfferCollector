@@ -10,20 +10,23 @@ class Talent(BaseSite):
 
 
 def talent_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(Talent.__tablename__):
         session, inspector = create_table(session)
 
     # Decrement deadline
     talent = Talent()
     talent.decrement_deadline(session)    
-    
-    # Scrapping data
-    html = requests.get("https://pl.talent.com/pl/jobs?k=Python&l=Warsaw%2C+Mazovia&radius=50")
-    soup = BeautifulSoup(html.content, "html.parser")
-    results = soup.find_all("div", {"class": "link-job-wrap"})
     root_site = "https://pl.talent.com/view?id="
-
     existing_data = [entry.link for entry in session.query(Talent).all()]
+
+    # Scrapping data
+    html_python = "https://pl.talent.com/pl/jobs?k=Python&l=Warsaw%2C+Mazovia&radius=50"
+    results = scrapping_offert(html_python)
+
+    html_cyber = "https://pl.talent.com/pl/jobs?k=junior+Security&l=Warsaw%2C+Mazovia&radius=50"
+    results += scrapping_offert(html_cyber)
+
     # Collecting details
     for result in results:
         link = root_site + result.find_parent("div", {"class": "card"}).get("data-id")
@@ -54,3 +57,10 @@ def talent_function(session, inspector):
                 source="talent")
             session.add_all([new_talent, new_offer])
     return session
+
+
+def scrapping_offert(html):
+    html = requests.get(html)
+    soup = BeautifulSoup(html.content, "html.parser")
+    results = soup.find_all("div", {"class": "link-job-wrap"})
+    return results

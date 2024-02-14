@@ -13,30 +13,21 @@ class Ziprecruiter(BaseSite):
 
 
 def ziprecruiter_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(Ziprecruiter.__tablename__):
         session, inspector = create_table(session)
     # Decrement deadline
     ziprecruiter = Ziprecruiter()
     ziprecruiter.decrement_deadline(session)
-    url = "https://www.ziprecruiter.co.uk/jobs/search?l=Remote&q=Junior+Python&remote=full"
 
-    # Init Selenium Driver
+    # Init Selenium Driver setting
     options = Options()
     options.add_argument('--headless=new')
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
-    driver = webdriver.Chrome(options=options)
 
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.content, "html.parser")
-    results = soup.find_all("li", {"class": "job-listing"})
-    number_of_page_ul = soup.find("ul", {"class": "pagination"}).find_all("li")
-    number_of_page = len(number_of_page_ul)
-    for page in range(2, number_of_page):
-        response = requests.get(f'https://www.ziprecruiter.co.uk/jobs/search?l=Remote&page={page}&q=Junior+Python&remote=full', headers=headers)
-        soup = BeautifulSoup(response.content, "html.parser")
-        results += soup.find_all("li", {"class": "job-listing"})
-    driver.close()
+    # Scrapping offert
+    html_python = "https://www.ziprecruiter.co.uk/jobs/search?l=Remote&q=Junior+Python&remote=full"
+    results = scrapping_offert(html_python, options)
 
     for result in results:
         time_raw = result.find("div", {"class": "jobList-date text-muted u-textNoWrap"}).get_text()
@@ -71,3 +62,19 @@ def ziprecruiter_function(session, inspector):
                 source="ziprecruiter")
             session.add_all([new_ziprecruiter, new_offer])
     return session
+
+
+def scrapping_offert(html, options):
+    driver = webdriver.Chrome(options=options)
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
+    response = requests.get(html, headers=headers)
+    soup = BeautifulSoup(response.content, "html.parser")
+    results = soup.find_all("li", {"class": "job-listing"})
+    number_of_page_ul = soup.find("ul", {"class": "pagination"}).find_all("li")
+    number_of_page = len(number_of_page_ul)
+    for page in range(2, number_of_page):
+        response = requests.get(f'https://www.ziprecruiter.co.uk/jobs/search?l=Remote&page={page}&q=Junior+Python&remote=full', headers=headers)
+        soup = BeautifulSoup(response.content, "html.parser")
+        results += soup.find_all("li", {"class": "job-listing"})
+    driver.close()
+    return results

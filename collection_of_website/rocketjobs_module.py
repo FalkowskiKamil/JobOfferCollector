@@ -10,19 +10,19 @@ class Rocketjobs(BaseSite):
 
 
 def rocketjobs_function(session, inspector):
+    # Creating table if not existing
     if not inspector.has_table(Rocketjobs.__tablename__):
         session, inspector = create_table(session)
     # Decrement deadline
     rocketjobs = Rocketjobs()
     rocketjobs.decrement_deadline(session)
+    root_link = "https://rocketjobs.pl"
+    existing_data = [entry.link for entry in session.query(Rocketjobs).all()]
 
     # Scrapping offert
-    html = requests.get("https://rocketjobs.pl/warszawa/doswiadczenie_staz-junior?keyword=Python")
-    soup = BeautifulSoup(html.content, "html.parser")
-    results = soup.find_all("div", {"class": "css-6xbxgh"})
-    root_link = "https://rocketjobs.pl"
+    html_python = "https://rocketjobs.pl/warszawa/doswiadczenie_staz-junior?keyword=Python"
+    results = scrapping_offert(html_python)
 
-    existing_data = [entry.link for entry in session.query(Rocketjobs).all()]
     # Collecting details
     for result in results:
         link = root_link + result.find("a").get("href")
@@ -58,3 +58,10 @@ def rocketjobs_function(session, inspector):
             )
             session.add_all([new_rocket, new_offer])
     return session
+
+
+def scrapping_offert(html):
+    html = requests.get(html)
+    soup = BeautifulSoup(html.content, "html.parser")
+    results = soup.find_all("div", {"class": "css-6xbxgh"})
+    return results
